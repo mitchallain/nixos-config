@@ -36,12 +36,16 @@ nixos-config/
 
 ### `nixosModules.base`
 Core system configuration including:
-- User account setup
+- User account setup (default: "mallain" - **change to your username**)
 - Essential packages (vim, git, wget, etc.)
 - SSH server
 - NetworkManager
 - Nix flakes and garbage collection
 - Firewall configuration
+
+> **Note:** The base module defines a user named "mallain". You should either:
+> 1. Edit `modules/common/base.nix` to use your username, or
+> 2. Override the user definition in your host configuration
 
 ### `nixosModules.gnome`
 GNOME desktop environment with:
