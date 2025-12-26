@@ -7,11 +7,11 @@
 
   # Enable GNOME Desktop Environment
   # GDM will default to Wayland, with X11 available as fallback
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
+  services.displayManager.gdm.enable = true;
+  services.desktopManager.gnome.enable = true;
 
   # Explicitly prefer Wayland (this is the default, but being explicit)
-  services.xserver.displayManager.gdm.wayland = true;
+  services.displayManager.gdm.wayland = true;
 
   # To force X11 instead, uncomment:
   # services.xserver.displayManager.gdm.wayland = false;
@@ -26,7 +26,7 @@
   services.printing.enable = true;
 
   # Enable sound with pipewire
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
