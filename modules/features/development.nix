@@ -70,7 +70,7 @@ with lib;
     ];
 
     # Docker for containerized development (optional)
-    # Uncomment to enable:
+    # Uncomment to enable (change "mallain" to your username):
     # virtualisation.docker.enable = true;
     # users.users.mallain.extraGroups = [ "docker" ];
   };

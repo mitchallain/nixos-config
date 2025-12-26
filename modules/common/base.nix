@@ -27,6 +27,8 @@
   };
 
   # Define your user account
+  # IMPORTANT: Change "mallain" to your actual username
+  # This username must match what you use when importing these modules
   users.users.mallain = {
     isNormalUser = true;
     description = "mallain";

@@ -36,6 +36,7 @@ with lib;
     };
 
     # Add user to docker/podman group
+    # NOTE: Change "mallain" to match your username from base.nix
     users.users.mallain.extraGroups = [
       (if config.mySystem.virtualization.backend == "docker" then "docker" else "podman")
     ];
