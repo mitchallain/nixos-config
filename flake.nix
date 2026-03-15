@@ -52,14 +52,13 @@
         base = import ./home/base.nix;
       };
 
-      # Example machine configuration (for documentation/testing)
       nixosConfigurations = {
-        desktop = mkSystem {
+        fractal = mkSystem {
           system = "x86_64-linux";
-          hostname = "desktop";
+          hostname = "fractal";
           modules = [
-            ./hosts/desktop
-            sops-nix.nixosModules.sops  # Include sops-nix for secrets example
+            ./hosts/fractal
+            sops-nix.nixosModules.sops
           ];
         };
       };
