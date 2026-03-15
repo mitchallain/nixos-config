@@ -45,10 +45,10 @@
     initExtra = ''
       source ${config.home.homeDirectory}/dotfiles/bashrc
     '';
-    # bash_profile: HM's generated version already sources .profile and .bashrc,
-    # covering everything in dotfiles/bash_profile.sh (.cargo/env is in .bashrc anyway)
-    # bash_logout: dotfiles version only clears console via /usr/bin/clear_console
-    # which doesn't exist on NixOS - skip it
+    # bash_profile: HM's generated version already sources .profile and .bashrc — skip
+    # bash_logout: only has Ubuntu-specific clear_console, no-op on NixOS — skip
+    # profile: dotfiles/profile only has PATH additions (poetry, go, cargo) which are
+    # all no-ops on NixOS — HM's generated .profile handles session vars
   };
 
   # FZF Configuration
@@ -70,8 +70,6 @@
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/gitconfig";
   home.file.".bash_aliases".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/bash_aliases.sh";
-  home.file.".profile".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/profile";
   home.file.".aliases/fzf_functions.sh".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/fzf_functions.sh";
   home.file.".aliases/nix_aliases.sh".source =
