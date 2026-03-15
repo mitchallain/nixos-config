@@ -45,6 +45,10 @@
     initExtra = ''
       source ${config.home.homeDirectory}/dotfiles/bashrc
     '';
+    # bash_profile: HM's generated version already sources .profile and .bashrc,
+    # covering everything in dotfiles/bash_profile.sh (.cargo/env is in .bashrc anyway)
+    # bash_logout: dotfiles version only clears console via /usr/bin/clear_console
+    # which doesn't exist on NixOS - skip it
   };
 
   # FZF Configuration
@@ -66,10 +70,6 @@
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/gitconfig";
   home.file.".bash_aliases".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/bash_aliases.sh";
-  home.file.".bash_profile".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/bash_profile.sh";
-  home.file.".bash_logout".source =
-    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/bash_logout";
   home.file.".profile".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/profile";
   home.file.".aliases/fzf_functions.sh".source =
