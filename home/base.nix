@@ -4,6 +4,16 @@
   # Home Manager state version - DO NOT CHANGE after initial setup
   home.stateVersion = "25.11";
 
+  # Neovim - use programs.neovim so extraPackages are in neovim's PATH
+  # (required for nvim-treesitter to compile parsers)
+  programs.neovim = {
+    enable = true;
+    extraPackages = with pkgs; [
+      tree-sitter
+      gcc
+    ];
+  };
+
   # User-level packages
   home.packages = with pkgs; [
     # Development tools
@@ -11,7 +21,6 @@
     nodejs
     rustc
     cargo
-    neovim
 
     # CLI tools
     jq
