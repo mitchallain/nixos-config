@@ -76,9 +76,16 @@
     backend = "docker";
   };
 
+  # Fonts
+  fonts.packages = with pkgs; [
+    nerd-fonts.meslo-lg
+  ];
+
   # Additional packages
   programs.firefox.enable = true;
   environment.systemPackages = with pkgs; [
     google-chrome
+    alacritty
+    sublime-merge
   ];
 }
