@@ -46,6 +46,7 @@
         gnome = import ./modules/common/gnome.nix;
         development = import ./modules/features/development.nix;
         virtualization = import ./modules/features/virtualization.nix;
+        zfs = import ./modules/features/zfs.nix;
       };
 
       homeManagerModules = {

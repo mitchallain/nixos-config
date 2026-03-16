@@ -11,10 +11,12 @@
     ../../modules/common/gnome.nix
     ../../modules/features/development.nix
     ../../modules/features/virtualization.nix
+    ../../modules/features/zfs.nix
   ];
 
   # Hostname
   networking.hostName = "fractal";
+  networking.hostId = "ef78e08d";  # Required by ZFS; derived from /etc/machine-id
 
   # Override systemd-boot from base.nix with GRUB for dual-boot support
   boot.loader.systemd-boot.enable = lib.mkForce false;
@@ -64,6 +66,9 @@
       go = true;
     };
   };
+
+  # Enable ZFS
+  mySystem.zfs.enable = true;
 
   # Enable Docker
   mySystem.virtualization = {
