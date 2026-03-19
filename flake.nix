@@ -47,6 +47,7 @@
         development = import ./modules/features/development.nix;
         virtualization = import ./modules/features/virtualization.nix;
         zfs = import ./modules/features/zfs.nix;
+        immich = import ./modules/features/immich.nix;
       };
 
       homeManagerModules = {
