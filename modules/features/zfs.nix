@@ -20,6 +20,7 @@ with lib;
   config = mkIf config.mySystem.zfs.enable {
     boot.supportedFilesystems = [ "zfs" ];
     boot.zfs.forceImportRoot = false;
+    boot.zfs.extraPools = [ "omega" ];
 
     environment.systemPackages = with pkgs; [
       zfs
