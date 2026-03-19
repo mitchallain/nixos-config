@@ -12,6 +12,7 @@
     ../../modules/features/development.nix
     ../../modules/features/virtualization.nix
     ../../modules/features/zfs.nix
+    ../../modules/features/immich.nix
   ];
 
   # Hostname
@@ -24,6 +25,8 @@
     enable = true;
     efiSupport = true;
     device = "nodev";
+    timeout = 10;
+    extraConfig = "set timeout_style=menu";
     extraEntries = ''
       menuentry "Windows" {
         insmod part_gpt
@@ -69,6 +72,9 @@
 
   # Enable ZFS
   mySystem.zfs.enable = true;
+
+  # Enable Immich
+  mySystem.immich.enable = true;
 
   # Enable Docker
   mySystem.virtualization = {

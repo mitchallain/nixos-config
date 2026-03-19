@@ -8,6 +8,6 @@
   - `~/.claude`, `~/.claude.json`
 - [ ] Wire up `~/.config/systemd/user/nixseparatedebuginfod.service` once nixseparatedebuginfod is configured
 - [ ] Deduplicate packages between `modules/common/base.nix` (system-wide) and `home/base.nix` (home-manager)
-- [ ] Migrate immich server from ubuntu machine
+- [x] Migrate immich server from ubuntu machine
 - [ ] Setup sops
 - [ ] Test sway or hyprland
