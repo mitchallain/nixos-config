@@ -8,12 +8,20 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+    determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, sops-nix }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, sops-nix, determinate }:
     let
       systems = [ "x86_64-linux" "aarch64-linux" ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
+
+      # Overlay that auto-discovers all packages under pkgs/
+      localOverlay = final: prev:
+        nixpkgs.lib.packagesFromDirectoryRecursive {
+          inherit (final) callPackage;
+          directory = ./pkgs;
+        };
 
       mkSystem = { system, hostname, modules }:
         nixpkgs.lib.nixosSystem {
@@ -25,11 +33,13 @@
             };
           };
           modules = modules ++ [
+            determinate.nixosModules.default
+            { nixpkgs.overlays = [ localOverlay ]; }
             home-manager.nixosModules.home-manager
             {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
-              home-manager.users.mallain = import ./home/base.nix;
+              home-manager.users.mallain = { imports = [ ./home/base.nix ./home/niri.nix ]; };
               home-manager.extraSpecialArgs = {
                 pkgs-unstable = import nixpkgs-unstable {
                   inherit system;
@@ -44,6 +54,7 @@
       nixosModules = {
         base = import ./modules/common/base.nix;
         gnome = import ./modules/common/gnome.nix;
+        niri = import ./modules/common/niri.nix;
         development = import ./modules/features/development.nix;
         virtualization = import ./modules/features/virtualization.nix;
         zfs = import ./modules/features/zfs.nix;
@@ -52,6 +63,8 @@
 
       homeManagerModules = {
         base = import ./home/base.nix;
+        gnome = import ./home/gnome.nix;
+        niri = import ./home/niri.nix;
       };
 
       nixosConfigurations = {
@@ -65,15 +78,13 @@
         };
       };
 
+      # Nix formatter - run with `nix fmt`
+      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
+
       # Helper functions (optional)
       lib = import ./lib;
 
-      # Overlay with pkgs-unstable (optional)
-      overlays.default = final: prev: {
-        unstable = import nixpkgs-unstable {
-          system = final.system;
-          config.allowUnfree = true;
-        };
-      };
+      # Export local packages overlay (auto-discovers pkgs/)
+      overlays.default = localOverlay;
     };
 }
