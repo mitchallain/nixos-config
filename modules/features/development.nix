@@ -2,7 +2,12 @@
 #
 # Example feature module demonstrating the pattern.
 # Enable with: mySystem.development.enable = true;
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -19,55 +24,61 @@ with lib;
   };
 
   config = mkIf config.mySystem.development.enable {
-    environment.systemPackages = with pkgs; [
-      # Core development tools
-      git
-      gh  # GitHub CLI
-      lazygit
-      delta  # Better git diffs
-      ripgrep
-      xclip
-      neovim
+    environment.systemPackages =
+      with pkgs;
+      [
+        # Core development tools
+        git
+        gh # GitHub CLI
+        lazygit
+        delta # Better git diffs
+        ripgrep
+        xclip
+        neovim
 
-      # Build tools
-      gnumake
-      cmake
-      pkg-config
+        # Build tools
+        gnumake
+        cmake
+        pkg-config
 
-      # Debugging
-      gdb
-      lldb
+        # Debugging
+        gdb
+        lldb
 
-      # Modern CLI tools for development
-      jq
-      yq
-      tree
-      ncdu
+        # Modern CLI tools for development
+        jq
+        yq
+        tree
+        ncdu
 
-      # Language-specific tools
-    ] ++ optionals config.mySystem.development.languages.python [
-      python3
-      python3Packages.pip
-      python3Packages.virtualenv
-      poetry
-      uv
-    ] ++ optionals config.mySystem.development.languages.rust [
-      rustc
-      cargo
-      rustfmt
-      clippy
-      rust-analyzer
-    ] ++ optionals config.mySystem.development.languages.nodejs [
-      nodejs
-      nodePackages.npm
-      nodePackages.yarn
-      nodePackages.pnpm
-    ] ++ optionals config.mySystem.development.languages.go [
-      go
-      gopls
-      gotools
-      go-tools
-    ];
+        # Language-specific tools
+      ]
+      ++ optionals config.mySystem.development.languages.python [
+        python3
+        python3Packages.pip
+        python3Packages.virtualenv
+        poetry
+        uv
+      ]
+      ++ optionals config.mySystem.development.languages.rust [
+        rustc
+        cargo
+        rustfmt
+        clippy
+        rust-analyzer
+      ]
+      ++ optionals config.mySystem.development.languages.nodejs [
+        nodejs
+        nodePackages.npm
+        nodePackages.yarn
+        nodePackages.pnpm
+      ]
+      ++ optionals config.mySystem.development.languages.go [
+        go
+        gopls
+        gotools
+        go-tools
+      ];
 
     # Docker for containerized development (optional)
     # Uncomment to enable (change "mallain" to your username):

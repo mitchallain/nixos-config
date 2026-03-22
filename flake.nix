@@ -11,19 +11,36 @@
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, sops-nix, determinate }:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nixpkgs-unstable,
+      home-manager,
+      sops-nix,
+      determinate,
+    }:
     let
-      systems = [ "x86_64-linux" "aarch64-linux" ];
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
       forAllSystems = nixpkgs.lib.genAttrs systems;
 
       # Overlay that auto-discovers all packages under pkgs/
-      localOverlay = final: prev:
+      localOverlay =
+        final: prev:
         nixpkgs.lib.packagesFromDirectoryRecursive {
           inherit (final) callPackage;
           directory = ./pkgs;
         };
 
-      mkSystem = { system, hostname, modules }:
+      mkSystem =
+        {
+          system,
+          hostname,
+          modules,
+        }:
         nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = {
@@ -39,7 +56,12 @@
             {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
-              home-manager.users.mallain = { imports = [ ./home/base.nix ./home/niri.nix ]; };
+              home-manager.users.mallain = {
+                imports = [
+                  ./home/base.nix
+                  ./home/niri.nix
+                ];
+              };
               home-manager.extraSpecialArgs = {
                 pkgs-unstable = import nixpkgs-unstable {
                   inherit system;
@@ -49,7 +71,8 @@
             }
           ];
         };
-    in {
+    in
+    {
       # Export modules for use in other flakes
       nixosModules = {
         base = import ./modules/common/base.nix;
@@ -79,7 +102,15 @@
       };
 
       # Nix formatter - run with `nix fmt`
-      formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt);
+      formatter = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        pkgs.writeShellScriptBin "fmt" ''
+          find "$@" -name "*.nix" -print0 | xargs -0 ${pkgs.nixfmt}/bin/nixfmt
+        ''
+      );
 
       # Helper functions (optional)
       lib = import ./lib;

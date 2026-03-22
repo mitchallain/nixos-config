@@ -2,7 +2,12 @@
 #
 # Example feature module for containerization.
 # Enable with: mySystem.virtualization.enable = true;
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with lib;
 
@@ -11,7 +16,10 @@ with lib;
     enable = mkEnableOption "containerization (Docker/Podman)";
 
     backend = mkOption {
-      type = types.enum [ "docker" "podman" ];
+      type = types.enum [
+        "docker"
+        "podman"
+      ];
       default = "docker";
       description = "Container backend to use";
     };
@@ -31,7 +39,7 @@ with lib;
     # Podman configuration (Docker-compatible alternative)
     virtualisation.podman = mkIf (config.mySystem.virtualization.backend == "podman") {
       enable = true;
-      dockerCompat = true;  # Create docker alias
+      dockerCompat = true; # Create docker alias
       defaultNetwork.settings.dns_enabled = true;
     };
 
@@ -42,10 +50,13 @@ with lib;
     ];
 
     # Install docker-compose
-    environment.systemPackages = with pkgs; [
-      docker-compose
-    ] ++ optionals (config.mySystem.virtualization.backend == "podman") [
-      podman-compose
-    ];
+    environment.systemPackages =
+      with pkgs;
+      [
+        docker-compose
+      ]
+      ++ optionals (config.mySystem.virtualization.backend == "podman") [
+        podman-compose
+      ];
   };
 }

@@ -32,7 +32,10 @@
   users.users.mallain = {
     isNormalUser = true;
     description = "mallain";
-    extraGroups = [ "networkmanager" "wheel" ];  # wheel = sudo access
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ]; # wheel = sudo access
     shell = pkgs.bash;
   };
 
@@ -95,7 +98,7 @@
   # Firewall configuration
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 22 ];  # SSH
+    allowedTCPPorts = [ 22 ]; # SSH
   };
 
   # Enable NetworkManager for easy network configuration
