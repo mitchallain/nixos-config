@@ -8,7 +8,7 @@
 
     # Import modules from this flake
     ../../modules/common/base.nix
-    ../../modules/common/gnome.nix
+    ../../modules/common/niri.nix
     ../../modules/features/development.nix
     ../../modules/features/virtualization.nix
     ../../modules/features/zfs.nix
@@ -21,11 +21,11 @@
 
   # Override systemd-boot from base.nix with GRUB for dual-boot support
   boot.loader.systemd-boot.enable = lib.mkForce false;
+  boot.loader.timeout = 10;
   boot.loader.grub = {
     enable = true;
     efiSupport = true;
     device = "nodev";
-    timeout = 10;
     extraConfig = "set timeout_style=menu";
     extraEntries = ''
       menuentry "Windows" {
@@ -54,6 +54,7 @@
     open = false;  # Proprietary module - more stable for rendering
     nvidiaSettings = true;
     package = config.boot.kernelPackages.nvidiaPackages.stable;
+    powerManagement.enable = true;  # Fix GPU state restore after suspend/resume
   };
 
   # sops-nix configuration - age key derived from SSH host key

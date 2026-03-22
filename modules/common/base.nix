@@ -84,18 +84,13 @@
     };
   };
 
-  # Enable Nix Flakes and the new nix command
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-  # Automatic garbage collection
+  # Automatic garbage collection (experimental-features and auto-optimise-store
+  # are managed by Determinate Nix)
   nix.gc = {
     automatic = true;
     dates = "weekly";
     options = "--delete-older-than 30d";
   };
-
-  # Optimize storage by hardlinking identical files in /nix/store
-  nix.settings.auto-optimise-store = true;
 
   # Firewall configuration
   networking.firewall = {

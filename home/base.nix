@@ -22,6 +22,12 @@
     rustc
     cargo
 
+    # Git tools
+    forgit  # Interactive git commands via fzf (gd, gco, gss, etc.)
+
+    # AI tools (from unstable for latest version)
+    pkgs-unstable.claude-code
+
     # CLI tools
     jq
     yq
@@ -53,6 +59,7 @@
     enable = true;
     initExtra = ''
       source ${config.home.homeDirectory}/dotfiles/bashrc
+      source ${pkgs.forgit}/share/forgit/forgit.plugin.sh
     '';
     # bash_profile: HM's generated version already sources .profile and .bashrc — skip
     # bash_logout: only has Ubuntu-specific clear_console, no-op on NixOS — skip
@@ -131,20 +138,6 @@
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/pandoc";
   home.file.".ipython/profile_default/startup".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/ipython/profile_default/startup";
-
-  # GNOME custom keyboard shortcuts
-  dconf.settings = {
-    "org/gnome/settings-daemon/plugins/media-keys" = {
-      custom-keybindings = [
-        "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/"
-      ];
-    };
-    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
-      name = "Open Terminal";
-      command = "alacritty";
-      binding = "<Alt><Shift>t";
-    };
-  };
 
   # Let Home Manager manage itself
   programs.home-manager.enable = true;
