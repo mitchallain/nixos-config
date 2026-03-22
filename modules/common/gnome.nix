@@ -39,7 +39,7 @@
   environment.systemPackages = with pkgs; [
     gnome-tweaks
     gnome-extension-manager
-    alacritty  # Terminal emulator
+    alacritty # Terminal emulator
   ];
 
   # Disable some GNOME services that might not be needed

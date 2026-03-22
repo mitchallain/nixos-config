@@ -1,4 +1,9 @@
-{ config, pkgs, pkgs-unstable, ... }:
+{
+  config,
+  pkgs,
+  pkgs-unstable,
+  ...
+}:
 
 {
   # Home Manager state version - DO NOT CHANGE after initial setup
@@ -23,7 +28,7 @@
     cargo
 
     # Git tools
-    forgit  # Interactive git commands via fzf (gd, gco, gss, etc.)
+    forgit # Interactive git commands via fzf (gd, gco, gss, etc.)
 
     # AI tools (from unstable for latest version)
     pkgs-unstable.claude-code
@@ -34,17 +39,17 @@
     tree
     ncdu
     lazygit
-    delta  # Better git diffs
+    delta # Better git diffs
 
     # System monitoring
     iotop
     iftop
-    duf  # Modern df alternative
+    duf # Modern df alternative
 
     # Modern CLI replacements
-    bat  # Better cat
-    eza  # Better ls
-    zoxide  # Better cd
+    bat # Better cat
+    eza # Better ls
+    zoxide # Better cd
   ];
 
   # Environment variables

@@ -1,5 +1,10 @@
 # hosts/fractal/default.nix - Fractal machine configuration
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
   imports = [
@@ -17,7 +22,7 @@
 
   # Hostname
   networking.hostName = "fractal";
-  networking.hostId = "ef78e08d";  # Required by ZFS; derived from /etc/machine-id
+  networking.hostId = "ef78e08d"; # Required by ZFS; derived from /etc/machine-id
 
   # Override systemd-boot from base.nix with GRUB for dual-boot support
   boot.loader.systemd-boot.enable = lib.mkForce false;
@@ -51,10 +56,10 @@
   services.xserver.videoDrivers = [ "nvidia" ];
   hardware.nvidia = {
     modesetting.enable = true;
-    open = false;  # Proprietary module - more stable for rendering
+    open = false; # Proprietary module - more stable for rendering
     nvidiaSettings = true;
     package = config.boot.kernelPackages.nvidiaPackages.stable;
-    powerManagement.enable = true;  # Fix GPU state restore after suspend/resume
+    powerManagement.enable = true; # Fix GPU state restore after suspend/resume
   };
 
   # sops-nix configuration - age key derived from SSH host key

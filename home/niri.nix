@@ -212,42 +212,48 @@ in
   # Waybar
   programs.waybar = {
     enable = true;
-    settings = [{
-      layer = "top";
-      position = "top";
-      margin-top = 8;
-      margin-left = 12;
-      margin-right = 12;
-      height = 36;
+    settings = [
+      {
+        layer = "top";
+        position = "top";
+        margin-top = 8;
+        margin-left = 12;
+        margin-right = 12;
+        height = 36;
 
-      modules-left = [ "wlr/taskbar" ];
-      modules-right = [ "cpu" "memory" "clock" ];
+        modules-left = [ "wlr/taskbar" ];
+        modules-right = [
+          "cpu"
+          "memory"
+          "clock"
+        ];
 
-      "wlr/taskbar" = {
-        format = "{icon}";
-        icon-size = 20;
-        icon-theme = "Adwaita";
-        tooltip-format = "{title}";
-        on-click = "activate";
-        on-click-middle = "close";
-      };
+        "wlr/taskbar" = {
+          format = "{icon}";
+          icon-size = 20;
+          icon-theme = "Adwaita";
+          tooltip-format = "{title}";
+          on-click = "activate";
+          on-click-middle = "close";
+        };
 
-      "cpu" = {
-        interval = 5;
-        format = "󰻠  {usage}%";
-      };
+        "cpu" = {
+          interval = 5;
+          format = "󰻠  {usage}%";
+        };
 
-      "memory" = {
-        interval = 10;
-        format = "󰍛  {used:0.1f}G";
-      };
+        "memory" = {
+          interval = 10;
+          format = "󰍛  {used:0.1f}G";
+        };
 
-      "clock" = {
-        format = "󰥔  {:%H:%M}";
-        format-alt = "{:%Y-%m-%d}";
-        tooltip-format = "<tt>{calendar}</tt>";
-      };
-    }];
+        "clock" = {
+          format = "󰥔  {:%H:%M}";
+          format-alt = "{:%Y-%m-%d}";
+          tooltip-format = "<tt>{calendar}</tt>";
+        };
+      }
+    ];
 
     style = ''
       * {

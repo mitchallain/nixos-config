@@ -33,10 +33,13 @@
     enable = true;
     extraPortals = [
       pkgs.xdg-desktop-portal-gtk
-      pkgs.xdg-desktop-portal-gnome  # Needed for screencasting in niri
+      pkgs.xdg-desktop-portal-gnome # Needed for screencasting in niri
     ];
     config.niri = {
-      default = [ "gnome" "gtk" ];
+      default = [
+        "gnome"
+        "gtk"
+      ];
     };
   };
 
@@ -44,32 +47,32 @@
   services.printing.enable = true;
 
   # PAM for swaylock (screen locker)
-  security.pam.services.swaylock = {};
+  security.pam.services.swaylock = { };
 
   # Wayland session variables for Electron apps and Nvidia
   environment.sessionVariables = {
-    NIXOS_OZONE_WL = "1";        # Electron apps: use Wayland backend
-    MOZ_ENABLE_WAYLAND = "1";    # Firefox: force Wayland
+    NIXOS_OZONE_WL = "1"; # Electron apps: use Wayland backend
+    MOZ_ENABLE_WAYLAND = "1"; # Firefox: force Wayland
     QT_QPA_PLATFORM = "wayland"; # Qt apps: use Wayland
     SDL_VIDEODRIVER = "wayland"; # SDL apps: use Wayland
   };
 
   # Essential packages for a functional niri desktop
   environment.systemPackages = with pkgs; [
-    waybar          # Status bar
-    swaybg          # Wallpaper setter
-    fuzzel          # App launcher
-    mako            # Notification daemon
-    swaylock        # Screen locker
-    swayidle        # Idle management (dim/lock/suspend)
-    grim            # Screenshot tool
-    slurp           # Screen region selector (used with grim)
-    wl-clipboard    # Clipboard (wl-copy / wl-paste)
-    cliphist        # Clipboard history
-    brightnessctl   # Screen brightness
-    libnotify       # Desktop notifications (notify-send)
-    xwayland        # Compatibility for X11 apps
-    nautilus        # File manager
-    polkit_gnome    # Polkit authentication agent
+    waybar # Status bar
+    swaybg # Wallpaper setter
+    fuzzel # App launcher
+    mako # Notification daemon
+    swaylock # Screen locker
+    swayidle # Idle management (dim/lock/suspend)
+    grim # Screenshot tool
+    slurp # Screen region selector (used with grim)
+    wl-clipboard # Clipboard (wl-copy / wl-paste)
+    cliphist # Clipboard history
+    brightnessctl # Screen brightness
+    libnotify # Desktop notifications (notify-send)
+    xwayland # Compatibility for X11 apps
+    nautilus # File manager
+    polkit_gnome # Polkit authentication agent
   ];
 }

@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with lib;
 {
   options.mySystem.immich.enable = mkEnableOption "Immich photo management server";
@@ -19,7 +24,10 @@ with lib;
     };
 
     # Required for GPU acceleration
-    users.users.immich.extraGroups = [ "video" "render" ];
+    users.users.immich.extraGroups = [
+      "video"
+      "render"
+    ];
 
     # Weekly postgres backup to omega
     services.postgresqlBackup = {
