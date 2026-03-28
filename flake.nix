@@ -40,6 +40,7 @@
           system,
           hostname,
           modules,
+          homeModules ? [ ],
         }:
         nixpkgs.lib.nixosSystem {
           inherit system;
@@ -60,7 +61,8 @@
                 imports = [
                   ./home/base.nix
                   ./home/niri.nix
-                ];
+                ]
+                ++ homeModules;
               };
               home-manager.extraSpecialArgs = {
                 pkgs-unstable = import nixpkgs-unstable {
@@ -88,6 +90,7 @@
         base = import ./home/base.nix;
         gnome = import ./home/gnome.nix;
         niri = import ./home/niri.nix;
+        personal = import ./home/personal.nix;
       };
 
       nixosConfigurations = {
@@ -98,6 +101,7 @@
             ./hosts/fractal
             sops-nix.nixosModules.sops
           ];
+          homeModules = [ ./home/personal.nix ];
         };
       };
 

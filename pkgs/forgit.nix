@@ -27,6 +27,8 @@ stdenvNoCC.mkDerivation rec {
     cp forgit.plugin.zsh $out/share/forgit/
     # Install completions if present
     [ -d completions ] && cp -r completions $out/share/forgit/ || true
+    # Install bin scripts if present (added in 26.x)
+    [ -d bin ] && (mkdir -p $out/share/forgit/bin && cp -r bin/. $out/share/forgit/bin/) || true
   '';
 
   meta = with lib; {
