@@ -11,3 +11,4 @@
 - [x] Migrate immich server from ubuntu machine
 - [ ] Setup sops
 - [ ] Test sway or hyprland
+- [ ] Test swaync as a replacement for mako (notification drawer + history)

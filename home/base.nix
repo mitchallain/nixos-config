@@ -6,6 +6,7 @@
 }:
 
 {
+  imports = [ ./zeal.nix ];
   # Home Manager state version - DO NOT CHANGE after initial setup
   home.stateVersion = "25.11";
 
@@ -40,6 +41,10 @@
     ncdu
     lazygit
     delta # Better git diffs
+
+    # Documentation
+    zeal # Offline API documentation browser
+    anki # Spaced repetition flashcard app
 
     # System monitoring
     iotop
