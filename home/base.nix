@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  pkgs-unstable,
   ...
 }:
 
@@ -31,8 +30,9 @@
     # Git tools
     forgit # Interactive git commands via fzf (gd, gco, gss, etc.)
 
-    # AI tools (from unstable for latest version)
-    pkgs-unstable.claude-code
+    # AI tools (from llm-agents-nix overlay)
+    llm-agents.claude-code
+    llm-agents.qmd
 
     # CLI tools
     jq

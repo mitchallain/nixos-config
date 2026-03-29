@@ -87,6 +87,10 @@
     };
   };
 
+  # Allow wheel group to use nix as trusted users
+  # Required for nixos-rebuild --use-remote-sudo so flake fetching runs as the user
+  nix.settings.trusted-users = [ "root" "@wheel" ];
+
   # Automatic garbage collection (experimental-features and auto-optimise-store
   # are managed by Determinate Nix)
   nix.gc = {

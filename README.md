@@ -261,12 +261,39 @@ mySystem.virtualization.enable = true;
 mySystem.virtualization.backend = "docker";  # or "podman"
 ```
 
+## Rebuilding
+
+This config uses a private `sops-secrets` flake input fetched over SSH. Because of this,
+`nixos-rebuild` must run as the user (not root) so it can access the GitHub SSH key. Only
+the activation phase requires sudo. Use `--use-remote-sudo`:
+
+```bash
+nixos-rebuild switch --flake . --use-remote-sudo
+```
+
+This requires the user to be in `trusted-users` (`nix.settings.trusted-users = [ "root" "@wheel" ]`
+in `modules/common/base.nix`).
+
+### Bootstrap (first rebuild on a new machine)
+
+On first setup the GitHub SSH key doesn't exist in `/run/secrets/` yet, creating a
+chicken-and-egg problem. Break it by pointing the input at a local clone:
+
+```bash
+# Clone sops-secrets locally
+git clone git@github.com:mitchallain/sops-secrets ~/dev/sops-secrets
+
+# Bootstrap using local path override
+sudo nixos-rebuild switch --flake . --override-input sops-secrets path:/home/mallain/dev/sops-secrets
+```
+
+After the first successful rebuild, use `--use-remote-sudo` as normal.
+
 ## Updating
 
 ```bash
-cd ~/sources/my-nixos-config
 nix flake update
-sudo nixos-rebuild switch --flake .
+nixos-rebuild switch --flake . --use-remote-sudo
 ```
 
 ## Key Features
