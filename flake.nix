@@ -11,6 +11,8 @@
     sops-secrets.url = "git+ssh://git@github.com/mitchallain/sops-secrets";
     sops-secrets.flake = false;
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
+    llm-agents-nix.url = "github:numtide/llm-agents.nix";
+    llm-agents-nix.inputs.nixpkgs.follows = "nixpkgs-unstable";
   };
 
   outputs =
@@ -22,6 +24,7 @@
       sops-nix,
       sops-secrets,
       determinate,
+      llm-agents-nix,
     }:
     let
       systems = [
@@ -56,7 +59,7 @@
           };
           modules = modules ++ [
             determinate.nixosModules.default
-            { nixpkgs.overlays = [ localOverlay ]; }
+            { nixpkgs.overlays = [ localOverlay llm-agents-nix.overlays.default ]; }
             home-manager.nixosModules.home-manager
             {
               home-manager.useGlobalPkgs = true;
