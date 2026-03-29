@@ -34,30 +34,28 @@ if [[ ! -f "$SSH_HOST_KEY" ]]; then
     exit 1
 fi
 
-# Install required tools if not available
+# Generate age public key, installing ssh-to-age temporarily if needed
+echo "Generating age public key from SSH host key..."
 if ! command -v ssh-to-age &> /dev/null; then
     echo -e "${YELLOW}ssh-to-age not found. Installing temporarily...${NC}"
-    nix-shell -p ssh-to-age --run "ssh-to-age -private-key -i $SSH_HOST_KEY"
+    AGE_PUBLIC_KEY=$(nix-shell -p ssh-to-age --run "cat $SSH_HOST_KEY_PUB | ssh-to-age")
 else
-    # Generate age key from SSH key
-    echo "Generating age public key from SSH host key..."
-    AGE_PUBLIC_KEY=$(sudo cat "$SSH_HOST_KEY_PUB" | ssh-to-age)
-
-    echo
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo -e "${GREEN}✅ Age public key generated!${NC}"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo
-    echo "Your age public key is:"
-    echo -e "${GREEN}$AGE_PUBLIC_KEY${NC}"
-    echo
-    echo "Next steps:"
-    echo "1. Add this key to .sops.yaml in your dotfiles repo"
-    echo "2. Create a secrets file: cp secrets/common.yaml.example secrets/common.yaml"
-    echo "3. Encrypt it: sops secrets/common.yaml"
-    echo "4. Add your secrets to the file"
-    echo
-    echo "The age private key is stored in the SSH host key at:"
-    echo "$SSH_HOST_KEY"
-    echo
+    AGE_PUBLIC_KEY=$(cat "$SSH_HOST_KEY_PUB" | ssh-to-age)
 fi
+
+echo
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo -e "${GREEN}✅ Age public key generated!${NC}"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo
+echo "Your age public key is:"
+echo -e "${GREEN}$AGE_PUBLIC_KEY${NC}"
+echo
+echo "Next steps:"
+echo "1. Add this key to .sops.yaml in your sops-secrets repo"
+echo "2. Create a secrets file: sops secrets/fractal.yaml"
+echo "3. Add your secrets to the file"
+echo
+echo "The age private key is derived at runtime from the SSH host key at:"
+echo "$SSH_HOST_KEY"
+echo
