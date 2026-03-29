@@ -8,6 +8,8 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+    sops-secrets.url = "git+ssh://git@github.com/mitchallain/sops-secrets";
+    sops-secrets.flake = false;
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
   };
 
@@ -18,6 +20,7 @@
       nixpkgs-unstable,
       home-manager,
       sops-nix,
+      sops-secrets,
       determinate,
     }:
     let
@@ -45,6 +48,7 @@
         nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = {
+            inherit sops-secrets;
             pkgs-unstable = import nixpkgs-unstable {
               inherit system;
               config.allowUnfree = true;

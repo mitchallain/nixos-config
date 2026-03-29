@@ -3,6 +3,7 @@
   config,
   lib,
   pkgs,
+  sops-secrets,
   ...
 }:
 
@@ -63,7 +64,12 @@
   };
 
   # sops-nix configuration - age key derived from SSH host key
-  sops.age.keyFile = "/etc/ssh/ssh_host_ed25519_key";
+  sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+  sops.defaultSopsFile = "${sops-secrets}/secrets/common.yaml";
+  sops.secrets.github_ssh_key = {
+    owner = "mallain";
+    mode = "0600";
+  };
 
   # Enable development features
   mySystem.development = {

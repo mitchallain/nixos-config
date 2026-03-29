@@ -260,7 +260,8 @@
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs_3",
         "nixpkgs-unstable": "nixpkgs-unstable",
-        "sops-nix": "sops-nix"
+        "sops-nix": "sops-nix",
+        "sops-secrets": "sops-secrets"
       }
     },
     "sops-nix": {
@@ -281,6 +282,22 @@
         "owner": "Mic92",
         "repo": "sops-nix",
         "type": "github"
+      }
+    },
+    "sops-secrets": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1774732515,
+        "narHash": "sha256-LfxIY/ndx78L/f2q74t3yo/lhGaMJuaOfNtK94dONak=",
+        "ref": "refs/heads/master",
+        "rev": "5486d543f42239a43e5c42f13f0ea0419fa826fc",
+        "revCount": 1,
+        "type": "git",
+        "url": "ssh://git@github.com/mitchallain/sops-secrets"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/mitchallain/sops-secrets"
       }
     }
   },
