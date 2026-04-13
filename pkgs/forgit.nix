@@ -14,7 +14,6 @@ stdenvNoCC.mkDerivation rec {
     owner = "wfxr";
     repo = "forgit";
     rev = version; # Tags have no 'v' prefix
-    # Run `nix build` once with lib.fakeHash to get the correct hash:
     hash = "sha256-3PjKFARsN3BE5c3/JonNj+LpKBPT1N3hc1bK6NdWDTQ=";
   };
 
@@ -22,13 +21,11 @@ stdenvNoCC.mkDerivation rec {
   dontConfigure = true;
 
   installPhase = ''
-    mkdir -p $out/share/forgit
+    mkdir -p $out/share/forgit/bin
     cp forgit.plugin.sh $out/share/forgit/
     cp forgit.plugin.zsh $out/share/forgit/
-    # Install completions if present
     [ -d completions ] && cp -r completions $out/share/forgit/ || true
-    # Install bin scripts if present (added in 26.x)
-    [ -d bin ] && (mkdir -p $out/share/forgit/bin && cp -r bin/. $out/share/forgit/bin/) || true
+    [ -f bin/git-forgit ] && cp bin/git-forgit $out/share/forgit/bin/git-forgit && chmod +x $out/share/forgit/bin/git-forgit || true
   '';
 
   meta = with lib; {

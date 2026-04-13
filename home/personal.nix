@@ -8,9 +8,7 @@
 
   # Register personal notes as a qmd collection on first activation
   home.activation.qmdNotesCollection = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    if ! ${pkgs.llm-agents.qmd}/bin/qmd collection list 2>/dev/null | grep -q "^notes$"; then
-      run ${pkgs.llm-agents.qmd}/bin/qmd collection add "$HOME/Google Drive/05 Notes" --name notes
-    fi
+    ${pkgs.llm-agents.qmd}/bin/qmd collection add "$HOME/Google Drive/05 Notes" --name notes 2>/dev/null || true
   '';
 
   programs.ssh = {

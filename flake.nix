@@ -98,6 +98,7 @@
         gnome = import ./home/gnome.nix;
         niri = import ./home/niri.nix;
         personal = import ./home/personal.nix;
+        photography = import ./home/photography.nix;
       };
 
       nixosConfigurations = {
@@ -108,7 +109,10 @@
             ./hosts/fractal
             sops-nix.nixosModules.sops
           ];
-          homeModules = [ ./home/personal.nix ];
+          homeModules = [
+            ./home/personal.nix
+            ./home/photography.nix
+          ];
         };
       };
 

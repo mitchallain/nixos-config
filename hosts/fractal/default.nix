@@ -94,6 +94,10 @@
     backend = "docker";
   };
 
+  # Removable storage auto-mounting
+  services.udisks2.enable = true;
+  services.gvfs.enable = true;
+
   # Fonts
   fonts.packages = with pkgs; [
     nerd-fonts.meslo-lg
