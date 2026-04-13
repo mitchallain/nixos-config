@@ -205,6 +205,27 @@ in
         }
   '';
 
+  # udiskie - auto-mount removable storage
+  services.udiskie = {
+    enable = true;
+    automount = true;
+    notify = true;
+    tray = "auto";
+    settings = {
+      device_config = [
+        {
+          id_type = "partition_type";
+          id_usage = "other";
+          ignore = true;
+        }
+        {
+          id_fs_type = "zfs_member";
+          ignore = true;
+        }
+      ];
+    };
+  };
+
   # Mako notification daemon
   services.mako = {
     enable = true;

@@ -149,6 +149,77 @@
   home.file.".ipython/profile_default/startup".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/ipython/profile_default/startup";
 
+  # Yazi - terminal file manager with solarized dark theme
+  programs.yazi = {
+    enable = true;
+    theme = {
+      mgr = {
+        cwd = { fg = "blue"; };
+        hovered = {
+          fg = "#002b36";
+          bg = "blue";
+          bold = true;
+        };
+        marker_selected = { fg = "blue"; bg = "blue"; };
+        marker_copied = { fg = "green"; bg = "green"; };
+        marker_cut = { fg = "red"; bg = "red"; };
+        tab_active = {
+          fg = "#002b36";
+          bg = "blue";
+          bold = true;
+        };
+        tab_inactive = { fg = "#839496"; bg = "#073642"; };
+        border_style = { fg = "#586e75"; };
+      };
+      status = {
+        mode_normal = {
+          fg = "#002b36";
+          bg = "blue";
+          bold = true;
+        };
+        mode_select = {
+          fg = "#002b36";
+          bg = "green";
+          bold = true;
+        };
+        mode_unset = {
+          fg = "#002b36";
+          bg = "#cb4b16";
+          bold = true;
+        };
+        permissions_t = { fg = "blue"; };
+        permissions_r = { fg = "yellow"; };
+        permissions_w = { fg = "red"; };
+        permissions_x = { fg = "green"; };
+        permissions_s = { fg = "#586e75"; };
+      };
+      filetype = {
+        rules = [
+          { mime = "image/*"; fg = "yellow"; }
+          { mime = "video/*"; fg = "magenta"; }
+          { mime = "audio/*"; fg = "magenta"; }
+          {
+            mime = "application/zip";
+            fg = "green";
+          }
+          {
+            mime = "application/gzip";
+            fg = "green";
+          }
+          {
+            mime = "application/x-tar";
+            fg = "green";
+          }
+          {
+            name = "*/";
+            fg = "blue";
+            bold = true;
+          }
+        ];
+      };
+    };
+  };
+
   # Let Home Manager manage itself
   programs.home-manager.enable = true;
 }

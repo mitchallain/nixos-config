@@ -12,3 +12,4 @@
 - [ ] Setup sops
 - [ ] Test sway or hyprland
 - [ ] Test swaync as a replacement for mako (notification drawer + history)
+- [ ] Document `--use-remote-sudo` / `--sudo` build method for configs with private flake inputs (e.g. `sops-secrets`); check with colleagues whether this is standard practice
