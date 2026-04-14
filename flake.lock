@@ -408,11 +408,11 @@
     "sops-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1774754979,
-        "narHash": "sha256-rCh1wtE8StJYsOMmiapwsFa1/iBHbljo5077n8m9YzM=",
+        "lastModified": 1776139670,
+        "narHash": "sha256-ngNZd0P68qYblbhHhMGLF/zz/nsrsFG7JEGrwy4WBeU=",
         "ref": "refs/heads/master",
-        "rev": "0e8fde462c48efadf1c2e8f280a43f0713934740",
-        "revCount": 1,
+        "rev": "0bf6e7678432a6909e0c3c763ba1da084d846ee2",
+        "revCount": 2,
         "type": "git",
         "url": "ssh://git@github.com/mitchallain/sops-secrets"
       },

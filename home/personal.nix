@@ -1,10 +1,14 @@
-{ lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 
 {
   home.packages = with pkgs; [
     # Cloud storage
     insync # Google Drive sync client (proprietary)
   ];
+
+  # Claude Code skills from dotfiles
+  home.file.".claude/skills".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/claude/skills";
 
   # Register personal notes as a qmd collection on first activation
   home.activation.qmdNotesCollection = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
