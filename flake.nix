@@ -91,6 +91,7 @@
         virtualization = import ./modules/features/virtualization.nix;
         zfs = import ./modules/features/zfs.nix;
         immich = import ./modules/features/immich.nix;
+        notes = import ./modules/features/notes.nix;
       };
 
       homeManagerModules = {
@@ -99,6 +100,7 @@
         niri = import ./home/niri.nix;
         personal = import ./home/personal.nix;
         photography = import ./home/photography.nix;
+        notes = import ./home/notes.nix;
       };
 
       nixosConfigurations = {
@@ -112,6 +114,7 @@
           homeModules = [
             ./home/personal.nix
             ./home/photography.nix
+            ./home/notes.nix
           ];
         };
       };

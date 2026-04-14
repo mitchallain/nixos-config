@@ -19,6 +19,7 @@
     ../../modules/features/virtualization.nix
     ../../modules/features/zfs.nix
     ../../modules/features/immich.nix
+    ../../modules/features/notes.nix
   ];
 
   # Hostname
@@ -70,7 +71,6 @@
     owner = "mallain";
     mode = "0600";
   };
-
   # Enable development features
   mySystem.development = {
     enable = true;
@@ -87,6 +87,9 @@
 
   # Enable Immich
   mySystem.immich.enable = true;
+
+  # Enable notes server
+  mySystem.notes.enable = true;
 
   # Enable Docker
   mySystem.virtualization = {
@@ -109,5 +112,7 @@
     google-chrome
     alacritty
     sublime-merge
+    sops
+    ssh-to-age
   ];
 }
