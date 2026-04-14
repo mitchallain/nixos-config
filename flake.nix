@@ -34,11 +34,20 @@
       forAllSystems = nixpkgs.lib.genAttrs systems;
 
       # Overlay that auto-discovers all packages under pkgs/
-      localOverlay =
-        final: prev:
+      localOverlay = final: prev:
         nixpkgs.lib.packagesFromDirectoryRecursive {
           inherit (final) callPackage;
           directory = ./pkgs;
+        }
+        // {
+          python3 = prev.python3.override {
+            packageOverrides = pyFinal: pyPrev:
+              nixpkgs.lib.packagesFromDirectoryRecursive {
+                callPackage = pyFinal.callPackage;
+                directory = ./pythonPkgs;
+              };
+          };
+          python3Packages = final.python3.pkgs;
         };
 
       mkSystem =

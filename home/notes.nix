@@ -3,6 +3,7 @@ let
   mkdocsEnv = pkgs.python3.withPackages (ps: [
     ps.mkdocs
     ps.mkdocs-material
+    ps.mkdocs-ezlinks-plugin
   ]);
 in
 {
@@ -12,6 +13,12 @@ in
     theme:
       name: material
     use_directory_urls: false
+    plugins:
+      - search
+      - ezlinks
+    markdown_extensions:
+      - pymdownx.tasklist:
+          custom_checkbox: true
   '';
 
   systemd.user.services.mkdocs-notes = {
