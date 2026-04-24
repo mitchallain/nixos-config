@@ -26,7 +26,7 @@ let
       name = "zeal-docset-python";
       docsetName = "Python.docset";
       url = "https://kapeli.com/feeds/Python.tgz";
-      hash = "sha256:03scwpi97b8nb0sd8cdx5v865q4yf3wkqw62qhan1p7kkrnca4pc";
+      hash = "sha256-QfOJ4Y8YCoc8CurOTfaoxnu2D25gPtwysUfKobARMnM=";
     })
     (mkZealDocset {
       name = "zeal-docset-cpp";
@@ -38,7 +38,7 @@ let
       name = "zeal-docset-rust";
       docsetName = "Rust.docset";
       url = "https://kapeli.com/feeds/Rust.tgz";
-      hash = "sha256:0h2ypc7ydn90x0xi7xkbzmi4fjsnk4rs1v6cay4j6xs8yg86axqy";
+      hash = "sha256-jJtzuXiCh+v9cduLl95rFly0BnL1xPQOmbwgPLOmsxw=";
     })
   ];
 in
