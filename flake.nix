@@ -124,6 +124,7 @@
             ./home/personal.nix
             ./home/photography.nix
             ./home/notes.nix
+            ./home/fractal.nix
           ];
         };
       };
