@@ -27,6 +27,87 @@ in
   };
 
   config = mkIf config.mySystem.llmAgent.enable {
+    # ── Host directory creation ──────────────────────────────────────
+    systemd.tmpfiles.rules = [
+      "d /var/lib/microvms/hermes/agent-config 0755 root root -"
+      "d /var/lib/microvms/hermes/proposals 0755 root root -"
+    ];
+
+    # ── Activation script: generate CONTEXT.md ───────────────────────
+    system.activationScripts.hermes-agent-context = {
+      deps = [ ];
+      text =
+        let
+          contextFile = pkgs.writeText "CONTEXT.md" ''
+            # Hermes Agent — Self Context
+
+            This file is generated at activation time and describes your current
+            configuration, constraints, and how to propose changes to yourself.
+
+            ## Current Configuration
+
+            - **Model:** ${ollamaModel}
+            - **Ollama endpoint:** http://${hostIP}:${toString ollamaPort}/v1
+            - **Toolsets:** all
+
+            ## Network Constraints
+
+            You are running inside a kernel-isolated microVM. Your network access is
+            restricted at the host firewall:
+
+            - **Allowed outbound:** ports 80 and 443 (web search, HTTPS)
+            - **Allowed to host:** port ${toString ollamaPort} (Ollama inference only)
+            - **Blocked:** everything else — you cannot reach LAN hosts, host services
+              (Immich, notes server, SSH), or arbitrary host ports
+
+            You cannot modify your own firewall rules from inside the VM.
+
+            ## Proposing Changes
+
+            If you want to change your own configuration (add tools, change model,
+            adjust network rules, add API keys, etc.), write a Markdown proposal file
+            to `/run/proposals/`. A host-side agent or human will review and apply it.
+
+            ### Proposal format
+
+            File: `/run/proposals/YYYY-MM-DD-<short-title>.md`
+
+            ```markdown
+            # Proposal: <title>
+
+            ## Summary
+            One sentence description of the change.
+
+            ## Motivation
+            Why is this change needed? What will it enable?
+
+            ## Proposed Nix Change
+            Exact diff or replacement block for the relevant .nix file.
+            Reference file: modules/features/llm-agent.nix
+
+            ## Expected Impact
+            What changes after rebuild? Any risks?
+            ```
+
+            ## Module Source
+
+            Your full module definition is at `modules/features/llm-agent.nix` in the
+            nixos-config repository. A copy is available at `/run/agent-config/llm-agent.nix`.
+
+            ## Phase 2 (not yet implemented)
+
+            The following are planned but not yet active:
+            - API key injection via sops-nix (OpenRouter fallback, web search API key)
+            - These will appear as `environmentFiles` in your systemd service config
+          '';
+        in
+        ''
+          mkdir -p /var/lib/microvms/hermes/agent-config
+          cp ${contextFile} /var/lib/microvms/hermes/agent-config/CONTEXT.md
+          mkdir -p /var/lib/microvms/hermes/proposals
+        '';
+    };
+
     # ── Bridge interface (host side) ─────────────────────────────────
     networking.bridges.${bridgeName}.interfaces = [ ];
     networking.interfaces.${bridgeName}.ipv4.addresses = [
@@ -94,6 +175,20 @@ in
               tag = "ro-store";
               source = "/nix/store";
               mountPoint = "/nix/.ro-store";
+              proto = "virtiofs";
+            }
+            {
+              # Read-only context: CONTEXT.md and other host-generated config files
+              tag = "agent-config";
+              source = "/var/lib/microvms/hermes/agent-config";
+              mountPoint = "/run/agent-config";
+              proto = "virtiofs";
+            }
+            {
+              # Read-write proposals: Hermes writes proposal files here, host reads them
+              tag = "proposals";
+              source = "/var/lib/microvms/hermes/proposals";
+              mountPoint = "/run/proposals";
               proto = "virtiofs";
             }
           ];
