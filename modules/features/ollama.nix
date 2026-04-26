@@ -19,20 +19,13 @@ with lib;
     services.ollama = {
       enable = true;
       acceleration = "cuda";
-      # Bind only to the microvm bridge interface — not exposed on LAN
-      host = "10.0.0.1";
+      # Listen on all interfaces; firewall restricts to microvm bridge only
+      host = "0.0.0.0";
       port = 11434;
     };
 
-    # The microvm0 bridge may not exist yet when ollama starts — retry until it does
-    systemd.services.ollama = {
-      after = [ "sys-subsystem-net-devices-microvm0.device" ];
-      wants = [ "sys-subsystem-net-devices-microvm0.device" ];
-      serviceConfig = {
-        Restart = mkDefault "on-failure";
-        RestartSec = mkDefault "3s";
-      };
-    };
+    # Allow Ollama port only from the microvm bridge interface — blocks LAN access
+    networking.firewall.interfaces.microvm0.allowedTCPPorts = [ 11434 ];
 
     # Pull declared models after ollama starts
     systemd.services.ollama-pull-models = {
