@@ -229,6 +229,15 @@ in
           # environmentFiles = [ "/run/secrets/hermes-env" ];
         };
 
+        # SSH access from host
+        services.openssh = {
+          enable = true;
+          settings.PermitRootLogin = "prohibit-password";
+        };
+        users.users.root.openssh.authorizedKeys.keys = [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIINPlo/TuUC5ShPAuJvJk7zYMEiZzuoLel0LbPI7+Zmy mallain@fractal"
+        ];
+
         # Minimal system config for the guest
         system.stateVersion = "25.11";
       };
