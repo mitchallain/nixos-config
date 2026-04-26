@@ -13,6 +13,10 @@
     determinate.url = "https://flakehub.com/f/DeterminateSystems/determinate/*";
     llm-agents-nix.url = "github:numtide/llm-agents.nix";
     llm-agents-nix.inputs.nixpkgs.follows = "nixpkgs-unstable";
+    microvm.url = "github:astro/microvm.nix";
+    microvm.inputs.nixpkgs.follows = "nixpkgs-unstable";
+    hermes-agent.url = "github:NousResearch/hermes-agent";
+    hermes-agent.inputs.nixpkgs.follows = "nixpkgs-unstable";
   };
 
   outputs =
@@ -25,6 +29,8 @@
       sops-secrets,
       determinate,
       llm-agents-nix,
+      microvm,
+      hermes-agent,
     }:
     let
       systems = [
@@ -34,14 +40,16 @@
       forAllSystems = nixpkgs.lib.genAttrs systems;
 
       # Overlay that auto-discovers all packages under pkgs/
-      localOverlay = final: prev:
+      localOverlay =
+        final: prev:
         nixpkgs.lib.packagesFromDirectoryRecursive {
           inherit (final) callPackage;
           directory = ./pkgs;
         }
         // {
           python3 = prev.python3.override {
-            packageOverrides = pyFinal: pyPrev:
+            packageOverrides =
+              pyFinal: pyPrev:
               nixpkgs.lib.packagesFromDirectoryRecursive {
                 callPackage = pyFinal.callPackage;
                 directory = ./pythonPkgs;
@@ -60,7 +68,7 @@
         nixpkgs.lib.nixosSystem {
           inherit system;
           specialArgs = {
-            inherit sops-secrets;
+            inherit sops-secrets microvm hermes-agent;
             pkgs-unstable = import nixpkgs-unstable {
               inherit system;
               config.allowUnfree = true;
@@ -68,7 +76,13 @@
           };
           modules = modules ++ [
             determinate.nixosModules.default
-            { nixpkgs.overlays = [ localOverlay llm-agents-nix.overlays.default ]; }
+            microvm.nixosModules.host
+            {
+              nixpkgs.overlays = [
+                localOverlay
+                llm-agents-nix.overlays.default
+              ];
+            }
             home-manager.nixosModules.home-manager
             {
               home-manager.useGlobalPkgs = true;
