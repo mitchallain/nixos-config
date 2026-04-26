@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  pkgs-unstable,
   ...
 }:
 with lib;
@@ -18,6 +19,7 @@ with lib;
   config = mkIf config.mySystem.ollama.enable {
     services.ollama = {
       enable = true;
+      package = pkgs-unstable.ollama;
       acceleration = "cuda";
       # Listen on all interfaces; firewall restricts to microvm bridge only
       host = "0.0.0.0";
@@ -39,11 +41,12 @@ with lib;
         ExecStart = pkgs.writeShellScript "ollama-pull" (
           ''
             set -e
-            export OLLAMA_HOST="http://10.0.0.1:11434"
+            export HOME=/root
+            export OLLAMA_HOST="127.0.0.1:11434"
           ''
           + concatMapStrings (model: ''
             echo "Pulling model: ${model}"
-            ${pkgs.ollama}/bin/ollama pull "${model}"
+            ${pkgs-unstable.ollama}/bin/ollama pull "${model}"
           '') config.mySystem.ollama.models
         );
       };
