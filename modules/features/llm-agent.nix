@@ -109,7 +109,12 @@ in
     };
 
     # ── Bridge interface (host side) ─────────────────────────────────
+    # Empty interfaces — vm-hermes is created by cloud-hypervisor at runtime,
+    # so we attach it via udev when it appears rather than at network-setup time.
     networking.bridges.${bridgeName}.interfaces = [ ];
+    services.udev.extraRules = ''
+      ACTION=="add", SUBSYSTEM=="net", KERNEL=="vm-hermes", RUN+="${pkgs.iproute2}/bin/ip link set %k master ${bridgeName}"
+    '';
     networking.interfaces.${bridgeName}.ipv4.addresses = [
       {
         address = hostIP;
@@ -194,6 +199,11 @@ in
           ];
         };
 
+        # Persist hermes CLI config alongside the service's state directory
+        systemd.tmpfiles.rules = [
+          "L /root/.hermes - - - - /var/lib/hermes/.hermes"
+        ];
+
         # Guest networking via systemd-networkd
         systemd.network.enable = true;
         networking.useNetworkd = true;
@@ -235,7 +245,11 @@ in
           settings.PermitRootLogin = "prohibit-password";
         };
         users.users.root.openssh.authorizedKeys.keys = [
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIINPlo/TuUC5ShPAuJvJk7zYMEiZzuoLel0LbPI7+Zmy mallain@fractal"
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIINwCt7EppWledVMQxd3sBn1bvYJaGyZCM79DtrzXuL0 mallain@fractal"
+        ];
+
+        environment.systemPackages = [
+          hermes-agent.packages.x86_64-linux.default
         ];
 
         # Minimal system config for the guest

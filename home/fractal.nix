@@ -1,11 +1,22 @@
-{ ... }:
+{ pkgs, lib, ... }:
 
 {
+  # Generate a default SSH keypair on first activation if none exists
+  home.activation.generateSshKey = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if [ ! -f "$HOME/.ssh/id_ed25519" ]; then
+      $DRY_RUN_CMD ${pkgs.openssh}/bin/ssh-keygen -t ed25519 -f "$HOME/.ssh/id_ed25519" -N "" -C "mallain@fractal"
+    fi
+  '';
+
   # Hermes LLM agent microVM — host-only bridge network, key regenerates on rebuild
   programs.ssh.matchBlocks."hermes" = {
     hostname = "10.0.0.2";
     user = "root";
-    extraOptions.StrictHostKeyChecking = "no";
+    identityFile = "~/.ssh/id_ed25519";
+    extraOptions = {
+      StrictHostKeyChecking = "no";
+      UserKnownHostsFile = "/dev/null";
+    };
   };
 
   # WirePlumber - set HDMI (Nvidia GPU / DELL U3417W) as default audio output

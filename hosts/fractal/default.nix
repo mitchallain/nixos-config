@@ -124,5 +124,6 @@
     sublime-merge
     sops
     ssh-to-age
+    nvtopPackages.nvidia
   ];
 }

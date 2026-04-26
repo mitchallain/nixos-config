@@ -19,8 +19,7 @@ with lib;
   config = mkIf config.mySystem.ollama.enable {
     services.ollama = {
       enable = true;
-      package = pkgs-unstable.ollama;
-      acceleration = "cuda";
+      package = pkgs-unstable.ollama-cuda;
       # Listen on all interfaces; firewall restricts to microvm bridge only
       host = "0.0.0.0";
       port = 11434;
@@ -32,8 +31,8 @@ with lib;
     # Pull declared models after ollama starts
     systemd.services.ollama-pull-models = {
       description = "Pull Ollama models declared in mySystem.ollama.models";
-      after = [ "ollama.service" ];
-      wants = [ "ollama.service" ];
+      after = [ "ollama.service" "network-online.target" ];
+      wants = [ "ollama.service" "network-online.target" ];
       wantedBy = [ "multi-user.target" ];
       serviceConfig = {
         Type = "oneshot";
@@ -46,7 +45,7 @@ with lib;
           ''
           + concatMapStrings (model: ''
             echo "Pulling model: ${model}"
-            ${pkgs-unstable.ollama}/bin/ollama pull "${model}"
+            ${pkgs-unstable.ollama-cuda}/bin/ollama pull "${model}"
           '') config.mySystem.ollama.models
         );
       };

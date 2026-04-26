@@ -6,6 +6,7 @@
 set -uo pipefail
 
 POOL="omega"
+ZPOOL="zpool"
 IMMICH_PORT="2283"
 IMMICH_PING="http://localhost:${IMMICH_PORT}/api/server/ping"
 BACKUP_DIR="/mnt/omega/99-postgres-backup"
@@ -25,7 +26,7 @@ printf '=== Health Check: %s — %s ===\n' "${HOSTNAME}" "$(date '+%Y-%m-%d %H:%
 header "ZFS"
 
 # Pool health
-state=$(sudo zpool status "${POOL}" 2>/dev/null | awk '/^\s*state:/{print $2}') || state=""
+state=$("$ZPOOL" status "${POOL}" 2>/dev/null | awk '/^\s*state:/{print $2}') || state=""
 if [[ "$state" == "ONLINE" ]]; then
   ok "Pool ${POOL}" "$state"
 else
@@ -33,7 +34,7 @@ else
 fi
 
 # Capacity
-cap_raw=$(sudo zpool list -Hp -o cap "${POOL}" 2>/dev/null) || cap_raw=""
+cap_raw=$("$ZPOOL" list -Hp -o cap "${POOL}" 2>/dev/null) || cap_raw=""
 cap="${cap_raw//[^0-9]/}"
 if [[ -z "$cap" ]]; then
   fail "Capacity" "could not read capacity"
@@ -46,7 +47,7 @@ else
 fi
 
 # Scrub results
-scrub_line=$(sudo zpool status "${POOL}" 2>/dev/null | grep '^\s*scan:') || scrub_line=""
+scrub_line=$("$ZPOOL" status "${POOL}" 2>/dev/null | grep '^\s*scan:') || scrub_line=""
 if echo "$scrub_line" | grep -q "scrub repaired"; then
   errors=$(echo "$scrub_line" | grep -oP 'with \K\d+(?= errors)') || errors="0"
   scrub_date=$(echo "$scrub_line" | grep -oP 'on \K\w+ \w+ +\d+ [\d:]+ \d+$') || scrub_date=""
@@ -85,21 +86,17 @@ else
   fail "HTTP ping" "got ${http_code}"
 fi
 
-# Postgres backup recency
+# Postgres backup recency — stat the dir mtime (postgres-owned, world-unreadable)
 if [[ ! -d "$BACKUP_DIR" ]]; then
   fail "DB backup" "directory not found: ${BACKUP_DIR}"
 else
-  newest=$(find "$BACKUP_DIR" -type f -printf '%T@\n' 2>/dev/null | sort -n | tail -1)
-  if [[ -z "$newest" ]]; then
-    fail "DB backup" "no backup files found in ${BACKUP_DIR}"
+  dir_mtime=$(stat -c '%Y' "$BACKUP_DIR" 2>/dev/null) || dir_mtime=0
+  now_epoch=$(date +%s)
+  age_days=$(( (now_epoch - dir_mtime) / 86400 ))
+  if (( age_days <= BACKUP_FAIL_DAYS )); then
+    ok "DB backup age" "${age_days} days ago"
   else
-    now_epoch=$(date +%s)
-    age_days=$(( (now_epoch - ${newest%.*}) / 86400 ))
-    if (( age_days <= BACKUP_FAIL_DAYS )); then
-      ok "DB backup age" "${age_days} days ago"
-    else
-      fail "DB backup age" "${age_days} days ago (expected <=${BACKUP_FAIL_DAYS})"
-    fi
+    fail "DB backup age" "${age_days} days ago (expected <=${BACKUP_FAIL_DAYS})"
   fi
 fi
 
