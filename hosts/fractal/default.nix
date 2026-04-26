@@ -20,6 +20,8 @@
     ../../modules/features/zfs.nix
     ../../modules/features/immich.nix
     ../../modules/features/notes.nix
+    ../../modules/features/ollama.nix
+    ../../modules/features/llm-agent.nix
   ];
 
   # Hostname
@@ -90,6 +92,10 @@
 
   # Enable notes server
   mySystem.notes.enable = true;
+
+  # LLM agent sandbox (experiment — see docs/superpowers/specs/2026-04-26-llm-agent-microvm-design.md)
+  mySystem.ollama.enable = true;
+  mySystem.llmAgent.enable = true;
 
   # Enable Docker
   mySystem.virtualization = {
