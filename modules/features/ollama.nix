@@ -24,6 +24,16 @@ with lib;
       port = 11434;
     };
 
+    # The microvm0 bridge may not exist yet when ollama starts — retry until it does
+    systemd.services.ollama = {
+      after = [ "sys-subsystem-net-devices-microvm0.device" ];
+      wants = [ "sys-subsystem-net-devices-microvm0.device" ];
+      serviceConfig = {
+        Restart = mkDefault "on-failure";
+        RestartSec = mkDefault "3s";
+      };
+    };
+
     # Pull declared models after ollama starts
     systemd.services.ollama-pull-models = {
       description = "Pull Ollama models declared in mySystem.ollama.models";
