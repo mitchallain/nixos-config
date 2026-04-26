@@ -115,6 +115,7 @@
         zfs = import ./modules/features/zfs.nix;
         immich = import ./modules/features/immich.nix;
         notes = import ./modules/features/notes.nix;
+        healthCheck = import ./modules/features/health-check.nix;
       };
 
       homeManagerModules = {

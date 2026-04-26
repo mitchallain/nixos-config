@@ -22,6 +22,7 @@
     ../../modules/features/notes.nix
     ../../modules/features/ollama.nix
     ../../modules/features/llm-agent.nix
+    ../../modules/features/health-check.nix
   ];
 
   # Hostname
@@ -92,6 +93,9 @@
 
   # Enable notes server
   mySystem.notes.enable = true;
+
+  # Enable health check timer
+  mySystem.healthCheck.enable = true;
 
   # LLM agent sandbox (experiment — see docs/superpowers/specs/2026-04-26-llm-agent-microvm-design.md)
   mySystem.ollama.enable = true;
