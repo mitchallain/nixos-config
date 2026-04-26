@@ -15,7 +15,6 @@ let
     coreutils
     gnugrep
     gawk
-    sudo
     systemd
   ];
 
@@ -36,32 +35,13 @@ in
   };
 
   config = mkIf cfg.enable {
-    users.users.health-check = {
-      isSystemUser = true;
-      group = "health-check";
-      description = "Health check service user";
-    };
-    users.groups.health-check = { };
-
-    security.sudo.extraRules = [
-      {
-        users = [ "health-check" ];
-        commands = [
-          {
-            command = "${pkgs.zfs}/bin/zpool";
-            options = [ "NOPASSWD" ];
-          }
-        ];
-      }
-    ];
-
     environment.systemPackages = [ healthCheck ];
 
     systemd.services.health-check = {
       description = "System health check";
       serviceConfig = {
         Type = "oneshot";
-        User = "health-check";
+        User = "root";
         ExecStart = "${healthCheck}/bin/health-check";
       };
     };
