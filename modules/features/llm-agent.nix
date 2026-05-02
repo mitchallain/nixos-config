@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  pkgs-unstable,
   microvm,
   hermes-agent,
   ...
@@ -12,18 +13,10 @@ let
   hostIP = "10.0.0.1";
   vmIP = "10.0.0.2";
   prefixLen = 24;
-  ollamaPort = 11434;
-  # Capture host config value before entering guest config scope
-  ollamaModel = config.mySystem.llmAgent.ollamaModel;
 in
 {
   options.mySystem.llmAgent = {
     enable = mkEnableOption "Hermes LLM agent microVM";
-    ollamaModel = mkOption {
-      type = types.str;
-      default = "qwen3.5:9b";
-      description = "Model name passed to Hermes (must match a model pulled by mySystem.ollama)";
-    };
   };
 
   config = mkIf config.mySystem.llmAgent.enable {
@@ -31,6 +24,7 @@ in
     systemd.tmpfiles.rules = [
       "d /var/lib/microvms/hermes/agent-config 0755 root root -"
       "d /var/lib/microvms/hermes/proposals 0755 root root -"
+      "d /var/lib/microvms/hermes/agent-secrets 0755 root root -"
     ];
 
     # ── Activation script: generate CONTEXT.md ───────────────────────
@@ -46,8 +40,7 @@ in
 
             ## Current Configuration
 
-            - **Model:** ${ollamaModel}
-            - **Ollama endpoint:** http://${hostIP}:${toString ollamaPort}/v1
+            - **Model:** google/gemini-2.5-flash (via OpenRouter)
             - **Toolsets:** all
 
             ## Network Constraints
@@ -55,8 +48,7 @@ in
             You are running inside a kernel-isolated microVM. Your network access is
             restricted at the host firewall:
 
-            - **Allowed outbound:** ports 80 and 443 (web search, HTTPS)
-            - **Allowed to host:** port ${toString ollamaPort} (Ollama inference only)
+            - **Allowed outbound:** ports 80 and 443 (OpenRouter inference, web search, HTTPS)
             - **Blocked:** everything else — you cannot reach LAN hosts, host services
               (Immich, notes server, SSH), or arbitrary host ports
 
@@ -125,11 +117,12 @@ in
     # ── Firewall rules for the bridge interface ──────────────────────
     # Defined here so they are removed with the module.
     networking.firewall.extraCommands = ''
-      # Allow VM → Ollama on host
-      iptables -A FORWARD -i ${bridgeName} -d ${hostIP} -p tcp --dport ${toString ollamaPort} -j ACCEPT
       # Allow VM → outbound internet (web search)
       iptables -A FORWARD -i ${bridgeName} -p tcp --dport 80 -j ACCEPT
       iptables -A FORWARD -i ${bridgeName} -p tcp --dport 443 -j ACCEPT
+      # Allow VM → DNS (required for hostname resolution)
+      iptables -A FORWARD -i ${bridgeName} -p udp --dport 53 -j ACCEPT
+      iptables -A FORWARD -i ${bridgeName} -p tcp --dport 53 -j ACCEPT
       # Drop everything else from the bridge
       iptables -A FORWARD -i ${bridgeName} -j DROP
       # Allow established return traffic
@@ -138,9 +131,10 @@ in
       iptables -t nat -A POSTROUTING -s ${vmIP}/32 -j MASQUERADE
     '';
     networking.firewall.extraStopCommands = ''
-      iptables -D FORWARD -i ${bridgeName} -d ${hostIP} -p tcp --dport ${toString ollamaPort} -j ACCEPT || true
       iptables -D FORWARD -i ${bridgeName} -p tcp --dport 80 -j ACCEPT || true
       iptables -D FORWARD -i ${bridgeName} -p tcp --dport 443 -j ACCEPT || true
+      iptables -D FORWARD -i ${bridgeName} -p udp --dport 53 -j ACCEPT || true
+      iptables -D FORWARD -i ${bridgeName} -p tcp --dport 53 -j ACCEPT || true
       iptables -D FORWARD -i ${bridgeName} -j DROP || true
       iptables -D FORWARD -o ${bridgeName} -m state --state ESTABLISHED,RELATED -j ACCEPT || true
       iptables -t nat -D POSTROUTING -s ${vmIP}/32 -j MASQUERADE || true
@@ -196,6 +190,13 @@ in
               mountPoint = "/run/proposals";
               proto = "virtiofs";
             }
+            {
+              # API keys written as real files by host activation script (not sops symlinks)
+              tag = "hermes-secrets";
+              source = "/var/lib/microvms/hermes/agent-secrets";
+              mountPoint = "/run/agent-secrets";
+              proto = "virtiofs";
+            }
           ];
         };
 
@@ -220,13 +221,45 @@ in
           };
         };
 
+        # Re-run activation after the persistent disk is mounted.
+        # The hermes-agent module writes config.yaml during activation, but
+        # /var/lib/hermes is a microvm disk image mounted by systemd — after
+        # stage 2 activation runs. This service replays activation once the
+        # mount is ready so config.yaml is always written declaratively.
+        systemd.services.hermes-activation-replay = {
+          description = "Replay NixOS activation after persistent disk mount";
+          after = [ "var-lib-hermes.mount" ];
+          before = [ "hermes-agent.service" "hermes-env-setup.service" ];
+          wantedBy = [ "hermes-agent.service" ];
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            ExecStart = config.system.build.activationScript;
+          };
+        };
+
+        # Write .env after virtiofs mounts are ready (activation runs too early)
+        systemd.services.hermes-env-setup = {
+          description = "Write Hermes .env from virtiofs secrets share";
+          after = [ "run-agent\\x2dsecrets.mount" "hermes-activation-replay.service" ];
+          before = [ "hermes-agent.service" ];
+          wantedBy = [ "hermes-agent.service" ];
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            ExecStart = pkgs.writeShellScript "hermes-env-setup" ''
+              install -o hermes -g hermes -m 0640 /run/agent-secrets/env /var/lib/hermes/.hermes/.env
+            '';
+          };
+        };
+
         # Hermes agent (native mode — no container)
         services.hermes-agent = {
           enable = true;
           settings = {
             model = {
-              base_url = "http://${hostIP}:${toString ollamaPort}/v1";
-              default = ollamaModel;
+              provider = "openrouter";
+              default = "google/gemini-2.5-flash";
             };
             toolsets = [ "all" ];
             terminal = {
@@ -234,9 +267,15 @@ in
               cwd = ".";
               timeout = 180;
             };
+            compression = {
+              enabled = true;
+              threshold = 0.7;
+              summary_model = "google/gemma-4-26b-a4b-it:free";
+            };
+            auxiliary.compression = {
+              provider = "openrouter";
+            };
           };
-          # TODO: phase 2 — add environmentFiles here for API keys
-          # environmentFiles = [ "/run/secrets/hermes-env" ];
         };
 
         # SSH access from host
@@ -250,6 +289,7 @@ in
 
         environment.systemPackages = [
           hermes-agent.packages.x86_64-linux.default
+          pkgs-unstable.agent-browser # not yet in stable nixpkgs
         ];
 
         # Minimal system config for the guest
