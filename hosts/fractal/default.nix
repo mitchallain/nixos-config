@@ -22,6 +22,7 @@
     ../../modules/features/notes.nix
     ../../modules/features/llm-agent.nix
     ../../modules/features/health-check.nix
+    ../../modules/features/signal-cli.nix
   ];
 
   # Hostname
@@ -74,15 +75,28 @@
     mode = "0600";
   };
   sops.secrets.hermes_openrouter_key = {};
+  sops.secrets.hermes_exa_key = {};
+  sops.secrets.hermes_signal_account = { owner = "signal-cli"; };
   # Write an actual file (not a sops symlink) so virtiofs can expose it inside the VM
   system.activationScripts.hermes-agent-secrets = {
     deps = [ "setupSecrets" ];
     text = ''
       mkdir -p /var/lib/microvms/hermes/agent-secrets
-      printf 'OPENROUTER_API_KEY=%s\n' "$(cat ${config.sops.secrets.hermes_openrouter_key.path})" \
-        > /var/lib/microvms/hermes/agent-secrets/env
+      {
+        printf 'OPENROUTER_API_KEY=%s\n' "$(cat ${config.sops.secrets.hermes_openrouter_key.path})"
+        printf 'EXA_API_KEY=%s\n' "$(cat ${config.sops.secrets.hermes_exa_key.path})"
+        printf 'SIGNAL_HTTP_URL=http://10.0.0.1:8081\n'
+        printf 'SIGNAL_ACCOUNT=%s\n' "$(cat ${config.sops.secrets.hermes_signal_account.path})"
+        printf 'SIGNAL_ALLOWED_USERS=%s\n' "$(cat ${config.sops.secrets.hermes_signal_account.path})"
+        printf 'SIGNAL_HOME_CHANNEL=%s\n' "$(cat ${config.sops.secrets.hermes_signal_account.path})"
+      } > /var/lib/microvms/hermes/agent-secrets/env
       chmod 0444 /var/lib/microvms/hermes/agent-secrets/env
     '';
+  };
+
+  mySystem.signalCli = {
+    enable = true;
+    accountFile = config.sops.secrets.hermes_signal_account.path;
   };
   # Enable development features
   mySystem.development = {
@@ -114,6 +128,31 @@
   mySystem.virtualization = {
     enable = true;
     backend = "docker";
+  };
+
+  # Suppress failure when a printer is powered off at rebuild time
+  systemd.services.ensure-printers.serviceConfig.SuccessExitStatus = [ 0 1 ];
+
+  # Printers
+  services.printing.drivers = [ pkgs.brlaser ];
+  hardware.printers = {
+    ensureDefaultPrinter = "Brother_HL-L2360DW";
+    ensurePrinters = [
+      {
+        name = "Brother_HL-L2360DW";
+        location = "Home";
+        deviceUri = "socket://192.168.50.241";
+        model = "drv:///brlaser.drv/brl2360d.ppd";
+        ppdOptions.PageSize = "Letter";
+      }
+      {
+        name = "Epson_ET-2800";
+        location = "Home";
+        deviceUri = "ipp://192.168.50.159/ipp/print";
+        model = "everywhere";
+        ppdOptions.PageSize = "Letter";
+      }
+    ];
   };
 
   # Removable storage auto-mounting

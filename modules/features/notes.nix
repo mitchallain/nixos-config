@@ -1,9 +1,21 @@
 { config, lib, ... }:
 with lib;
 {
-  options.mySystem.notes.enable = mkEnableOption "mkdocs notes server with nginx basic auth";
+  options.mySystem.notes = {
+    enable = mkEnableOption "mkdocs notes server with nginx basic auth";
+    staticSiteDir = mkOption {
+      type = types.str;
+      default = "/var/lib/mkdocs-notes/site";
+      description = "Path to the pre-built static MkDocs site directory";
+    };
+  };
 
   config = mkIf config.mySystem.notes.enable {
+    systemd.tmpfiles.rules = [
+      "d /var/lib/mkdocs-notes      0755 mallain users -"
+      "d /var/lib/mkdocs-notes/site 0755 mallain users -"
+    ];
+
     sops.secrets.notes_htpasswd = {
       owner = "nginx";
       mode = "0440";
@@ -21,8 +33,9 @@ with lib;
         ];
         basicAuthFile = config.sops.secrets.notes_htpasswd.path;
         locations."/" = {
-          proxyPass = "http://127.0.0.1:7000";
-          proxyWebsockets = true;
+          root = config.mySystem.notes.staticSiteDir;
+          index = "index.html";
+          tryFiles = "$uri $uri/ $uri.html =404";
         };
       };
     };

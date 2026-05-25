@@ -2,8 +2,12 @@
 { config, pkgs, ... }:
 
 {
-  # GNOME custom keyboard shortcuts
   dconf.settings = {
+    "org/gnome/desktop/interface" = {
+      clock-show-date = true;
+    };
+
+    # GNOME custom keyboard shortcuts
     "org/gnome/settings-daemon/plugins/media-keys" = {
       custom-keybindings = [
         "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/"
