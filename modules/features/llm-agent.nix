@@ -13,6 +13,7 @@ let
   hostIP = "10.0.0.1";
   vmIP = "10.0.0.2";
   prefixLen = 24;
+  signalCliPort = 8081;
 in
 {
   options.mySystem.llmAgent = {
@@ -140,6 +141,9 @@ in
       iptables -t nat -D POSTROUTING -s ${vmIP}/32 -j MASQUERADE || true
     '';
 
+    # Allow VM → signal-cli daemon on host (INPUT, not FORWARD — traffic is destined for host)
+    networking.firewall.interfaces.${bridgeName}.allowedTCPPorts = [ signalCliPort ];
+
     # Enable IP forwarding so the VM can reach the internet via the host
     boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
 
@@ -234,7 +238,12 @@ in
           serviceConfig = {
             Type = "oneshot";
             RemainAfterExit = true;
-            ExecStart = config.system.build.activationScript;
+            # Discover the booted system store path at runtime from the kernel
+            # cmdline — avoids a circular dependency on system.build.toplevel.
+            ExecStart = pkgs.writeShellScript "hermes-activation-replay" ''
+              system=$(grep -oP 'init=\K\S+' /proc/cmdline | sed 's|/init$||')
+              exec "$system/activate"
+            '';
           };
         };
 
@@ -249,9 +258,43 @@ in
             RemainAfterExit = true;
             ExecStart = pkgs.writeShellScript "hermes-env-setup" ''
               install -o hermes -g hermes -m 0640 /run/agent-secrets/env /var/lib/hermes/.hermes/.env
+
+              # agent-browser downloads generic Linux Chrome which can't run on NixOS.
+              # Replace any downloaded Chrome binaries with a wrapper calling NixOS Chromium.
+              AB_BROWSERS="/var/lib/hermes/.agent-browser/browsers"
+              mkdir -p "$AB_BROWSERS"
+              chown hermes:hermes "$AB_BROWSERS"
+              for dir in "$AB_BROWSERS"/chrome-*/; do
+                [ -d "$dir" ] || continue
+                printf '#!/bin/sh\nexec ${pkgs.chromium}/bin/chromium "$@"\n' > "$dir/chrome"
+                chmod +x "$dir/chrome"
+                chown -R hermes:hermes "$dir"
+              done
+
+              # First-time setup: if no Chrome directory exists yet, run agent-browser install
+              # (downloads the directory structure), then immediately replace the binary.
+              if ! ls "$AB_BROWSERS"/chrome-* 2>/dev/null | grep -q .; then
+                su -s /bin/sh hermes -c "HOME=/var/lib/hermes ${pkgs-unstable.agent-browser}/bin/agent-browser install" || true
+                for dir in "$AB_BROWSERS"/chrome-*/; do
+                  [ -d "$dir" ] || continue
+                  printf '#!/bin/sh\nexec ${pkgs.chromium}/bin/chromium "$@"\n' > "$dir/chrome"
+                  chmod +x "$dir/chrome"
+                  chown -R hermes:hermes "$dir"
+                done
+              fi
+
+              # hermes browser_tool checks ~/.cache/ms-playwright/chromium-* to detect
+              # Chromium (written for agent-browser 0.26+ which uses Playwright builds).
+              # Create a stub so the browser toolset is advertised as available.
+              mkdir -p /var/lib/hermes/.cache/ms-playwright/chromium-stub
+              chown -R hermes:hermes /var/lib/hermes/.cache
             '';
           };
         };
+
+        # agent-browser is in the system PATH but the hermes-agent service has a
+        # restricted PATH — shutil.which() can't find it. Inject it explicitly.
+        systemd.services.hermes-agent.path = [ pkgs-unstable.agent-browser pkgs.chromium ];
 
         # Hermes agent (native mode — no container)
         services.hermes-agent = {
@@ -290,6 +333,7 @@ in
         environment.systemPackages = [
           hermes-agent.packages.x86_64-linux.default
           pkgs-unstable.agent-browser # not yet in stable nixpkgs
+          pkgs.chromium # used as Chrome backend for agent-browser (NixOS-compatible)
         ];
 
         # Minimal system config for the guest

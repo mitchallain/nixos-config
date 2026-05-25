@@ -26,7 +26,7 @@ let
       name = "zeal-docset-python";
       docsetName = "Python.docset";
       url = "https://kapeli.com/feeds/Python.tgz";
-      hash = "sha256-QfOJ4Y8YCoc8CurOTfaoxnu2D25gPtwysUfKobARMnM=";
+      hash = "sha256-uUQz4uwSNT+eHgGtLY3L5Sh4obVThbV48N23T+vtv2E=";
     })
     (mkZealDocset {
       name = "zeal-docset-cpp";
