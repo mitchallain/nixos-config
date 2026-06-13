@@ -22,7 +22,7 @@
   # User-level packages
   home.packages = with pkgs; [
     # Development tools
-    python3
+    (python3.withPackages (ps: with ps; [ openpyxl pandas ]))
     nodejs
     rustc
     cargo
