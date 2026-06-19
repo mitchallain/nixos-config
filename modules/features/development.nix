@@ -54,9 +54,7 @@ with lib;
         # Language-specific tools
       ]
       ++ optionals config.mySystem.development.languages.python [
-        python3
-        python3Packages.pip
-        python3Packages.virtualenv
+        (python3.withPackages (ps: with ps; [ pip virtualenv ]))
         poetry
         uv
       ]
@@ -69,9 +67,8 @@ with lib;
       ]
       ++ optionals config.mySystem.development.languages.nodejs [
         nodejs
-        nodePackages.npm
-        nodePackages.yarn
-        nodePackages.pnpm
+        yarn
+        pnpm
       ]
       ++ optionals config.mySystem.development.languages.go [
         go

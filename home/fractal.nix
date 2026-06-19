@@ -9,14 +9,12 @@
   '';
 
   # Hermes LLM agent microVM — host-only bridge network, key regenerates on rebuild
-  programs.ssh.matchBlocks."hermes" = {
-    hostname = "10.0.0.2";
-    user = "root";
-    identityFile = "~/.ssh/id_ed25519";
-    extraOptions = {
-      StrictHostKeyChecking = "no";
-      UserKnownHostsFile = "/dev/null";
-    };
+  programs.ssh.settings."hermes" = {
+    Hostname = "10.0.0.2";
+    User = "root";
+    IdentityFile = "~/.ssh/id_ed25519";
+    StrictHostKeyChecking = "no";
+    UserKnownHostsFile = "/dev/null";
   };
 
   # WirePlumber - set HDMI (Nvidia GPU / DELL U3417W) as default audio output

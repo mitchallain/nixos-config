@@ -159,6 +159,7 @@ in
           hypervisor = "cloud-hypervisor";
           vcpu = 2;
           mem = 2048;
+          vsock.cid = 3;
           interfaces = [
             {
               type = "tap";

@@ -1,26 +1,37 @@
 {
   config,
   pkgs,
+  lib,
   ...
 }:
+
+let
+  # programs.neovim in home-manager 26.05 generates init.lua even with no config,
+  # conflicting with home.file.".config/nvim" symlink. Wrap neovim directly to get
+  # extraPackages-style PATH injection without any managed config files.
+  neovimWithExtras = pkgs.symlinkJoin {
+    name = "neovim-with-extras";
+    paths = [ pkgs.neovim ];
+    buildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram $out/bin/nvim \
+        --prefix PATH : ${lib.makeBinPath (with pkgs; [
+          tree-sitter
+          gcc
+          (python3.withPackages (ps: [ ps.pynvim ]))
+        ])}
+    '';
+  };
+in
 
 {
   imports = [ ./zeal.nix ];
   # Home Manager state version - DO NOT CHANGE after initial setup
   home.stateVersion = "25.11";
 
-  # Neovim - use programs.neovim so extraPackages are in neovim's PATH
-  # (required for nvim-treesitter to compile parsers)
-  programs.neovim = {
-    enable = true;
-    extraPackages = with pkgs; [
-      tree-sitter
-      gcc
-    ];
-  };
-
   # User-level packages
   home.packages = with pkgs; [
+    neovimWithExtras
     # Development tools
     (python3.withPackages (ps: with ps; [
       openpyxl
@@ -28,10 +39,10 @@
       # PDF parsing
       pypdf
       pymupdf
-      pdfminer
+      pdfminer-six
       pdfplumber
     ]))
-    poppler_utils
+    poppler-utils
     nodejs
     rustc
     cargo
@@ -68,8 +79,8 @@
 
   # Environment variables
   home.sessionVariables = {
-    EDITOR = "vim";
-    VISUAL = "vim";
+    EDITOR = "nvim";
+    VISUAL = "nvim";
   };
 
   # Bash - source dotfiles bashrc after home-manager's generated preamble
@@ -161,6 +172,7 @@
   # Yazi - terminal file manager with solarized dark theme
   programs.yazi = {
     enable = true;
+    shellWrapperName = "y";
     theme = {
       mgr = {
         cwd = { fg = "blue"; };
