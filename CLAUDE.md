@@ -343,6 +343,32 @@ options.mySystem.feature = {
 
 Use `mySystem.*` for all custom options to avoid conflicts.
 
+### 5. Home Manager vs System Config
+
+**Put in system config (`modules/` or `hosts/`):**
+- Hardware drivers, kernel modules, firmware
+- System services and daemons (`services.*`)
+- Users, groups, sudo rules
+- Networking (firewall, interfaces, hostname)
+- Boot configuration
+- Packages required for system operation or needed by all users
+- Virtualization/containers (Docker, microVMs)
+- Security policy (PAM, SSH daemon)
+
+**Put in home-manager (`home/`):**
+- User-specific packages — especially Python: always use `python3.withPackages` so packages are importable, never `python3Packages.*` in `systemPackages`
+- Dotfiles and app config (bashrc, gitconfig, neovim, etc.)
+- Shell configuration and integrations
+- Per-user CLI tool preferences
+- GUI app configuration
+
+**Decision heuristics:**
+1. Would another user on this machine need it? → system. Personal preference? → home-manager.
+2. Does it require root to function? → system.
+3. Is it a dotfile or user config file? → home-manager.
+4. Python packages: always `python3.withPackages` in home-manager. Adding `python3Packages.foo` to `systemPackages` installs the package but doesn't make it importable from `python3`.
+5. CLI tools: home-manager if personal preference, system if needed for services or all users.
+
 ## Integration with Private Configurations
 
 Typical pattern for using these modules:
