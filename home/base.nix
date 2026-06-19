@@ -22,7 +22,16 @@
   # User-level packages
   home.packages = with pkgs; [
     # Development tools
-    (python3.withPackages (ps: with ps; [ openpyxl pandas ]))
+    (python3.withPackages (ps: with ps; [
+      openpyxl
+      pandas
+      # PDF parsing
+      pypdf
+      pymupdf
+      pdfminer
+      pdfplumber
+    ]))
+    poppler_utils
     nodejs
     rustc
     cargo
