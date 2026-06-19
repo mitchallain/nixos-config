@@ -18,9 +18,9 @@
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
-    matchBlocks."github.com" = {
-      user = "git";
-      identityFile = "/run/secrets/github_ssh_key";
+    settings."github.com" = {
+      User = "git";
+      IdentityFile = "/run/secrets/github_ssh_key";
     };
   };
 }

@@ -26,13 +26,13 @@ let
       name = "zeal-docset-python";
       docsetName = "Python.docset";
       url = "https://kapeli.com/feeds/Python.tgz";
-      hash = "sha256-uUQz4uwSNT+eHgGtLY3L5Sh4obVThbV48N23T+vtv2E=";
+      hash = "sha256-YEu4/sN7VrAtOh6djTDdxttnyj/0G2C7p000g0qdxc4=";
     })
     (mkZealDocset {
       name = "zeal-docset-cpp";
       docsetName = "C++.docset";
       url = "https://kapeli.com/feeds/C++.tgz";
-      hash = "sha256:0m020hpvchw7q4f0hx7bn1n4qzy8b9rsklavl0wnmw6vw4jw4fjm";
+      hash = "sha256-84sCt4NVQ1cdFFR0hrIZBB496cmvgejg6vIZ6zCQJVg=";
     })
     (mkZealDocset {
       name = "zeal-docset-rust";
