@@ -17,7 +17,7 @@
     microvm.inputs.nixpkgs.follows = "nixpkgs-unstable";
     hermes-agent.url = "github:NousResearch/hermes-agent";
     hermes-agent.inputs.nixpkgs.follows = "nixpkgs-unstable";
-    family-dashboard.url = "path:/home/mallain/dev/dash";
+    family-dashboard.url = "github:mitchallain/dash";
     family-dashboard.inputs.nixpkgs.follows = "nixpkgs";
   };
 
