@@ -17,6 +17,8 @@
     microvm.inputs.nixpkgs.follows = "nixpkgs-unstable";
     hermes-agent.url = "github:NousResearch/hermes-agent";
     hermes-agent.inputs.nixpkgs.follows = "nixpkgs-unstable";
+    family-dashboard.url = "path:/home/mallain/dev/dash";
+    family-dashboard.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -31,6 +33,7 @@
       llm-agents-nix,
       microvm,
       hermes-agent,
+      family-dashboard,
     }:
     let
       systems = [
@@ -134,6 +137,15 @@
           modules = [
             ./hosts/fractal
             sops-nix.nixosModules.sops
+            family-dashboard.nixosModules.default
+            {
+              mySystem.dashboard = {
+                enable = true;
+                package = family-dashboard.packages.x86_64-linux.default;
+                todoistTokenSecret = "todoist_key";
+                googleTokenSecret = "dashboard_google_token";
+              };
+            }
           ];
           homeModules = [
             ./home/personal.nix
