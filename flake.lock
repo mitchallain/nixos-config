@@ -58,6 +58,27 @@
         "type": "github"
       }
     },
+    "dash": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1782009620,
+        "narHash": "sha256-6Qkz6ibe1On3AHy4xl/0u11KQ1ij5r6gGsEyzqdg9pA=",
+        "ref": "refs/heads/master",
+        "rev": "6e757216a286d2444ce81ff4cd7551ba4ab0d238",
+        "revCount": 45,
+        "type": "git",
+        "url": "ssh://git@github.com/mitchallain/dash"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/mitchallain/dash"
+      }
+    },
     "determinate": {
       "inputs": {
         "determinate-nixd-aarch64-darwin": "determinate-nixd-aarch64-darwin",
@@ -194,6 +215,24 @@
         "type": "github"
       }
     },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "git-hooks-nix": {
       "inputs": {
         "flake-compat": "flake-compat",
@@ -274,7 +313,7 @@
         "nixpkgs": [
           "nixpkgs-unstable"
         ],
-        "systems": "systems",
+        "systems": "systems_2",
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
@@ -536,6 +575,7 @@
     },
     "root": {
       "inputs": {
+        "dash": "dash",
         "determinate": "determinate",
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager",
@@ -570,11 +610,11 @@
     "sops-secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1777829730,
-        "narHash": "sha256-rHTvpzVIIISd+fymr5Kpz8BPdp48w06eduXW5So8gtQ=",
+        "lastModified": 1781991324,
+        "narHash": "sha256-tdnuvtZPJNZfPSfrvwvkL13+SAKkD0ybfbOFdHKjr/U=",
         "ref": "refs/heads/master",
-        "rev": "f40b13eea491726af2c047a1c0438ec788efa60b",
-        "revCount": 5,
+        "rev": "94a4bf07776dcdc2a69f2d548cb0e5ebc2135702",
+        "revCount": 7,
         "type": "git",
         "url": "ssh://git@github.com/mitchallain/sops-secrets"
       },
@@ -600,6 +640,21 @@
       }
     },
     "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_2": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
