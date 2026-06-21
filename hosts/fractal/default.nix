@@ -118,11 +118,16 @@
   # Enable notes server
   mySystem.notes.enable = true;
 
-  # Enable health check timer
-  mySystem.healthCheck.enable = true;
+  # Health check timer with Signal notification on failure
+  mySystem.healthCheck = {
+    enable = true;
+    notify = {
+      enable = true;
+      accountFile = config.sops.secrets.hermes_signal_account.path;
+    };
+  };
 
-  # LLM agent sandbox (experiment — see docs/superpowers/specs/2026-04-26-llm-agent-microvm-design.md)
-  mySystem.llmAgent.enable = true;
+  mySystem.llmAgent.enable = false;
 
   # Enable Docker
   mySystem.virtualization = {
