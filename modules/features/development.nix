@@ -54,7 +54,12 @@ with lib;
         # Language-specific tools
       ]
       ++ optionals config.mySystem.development.languages.python [
-        (python3.withPackages (ps: with ps; [ pip virtualenv ]))
+        (python3.withPackages (
+          ps: with ps; [
+            pip
+            virtualenv
+          ]
+        ))
         poetry
         uv
       ]

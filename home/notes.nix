@@ -68,7 +68,6 @@ in
     }
   '';
 
-
   systemd.user.services.mkdocs-notes-build = {
     Unit.Description = "mkdocs notes static site build";
     Service = {

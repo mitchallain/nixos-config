@@ -66,11 +66,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1782009620,
-        "narHash": "sha256-6Qkz6ibe1On3AHy4xl/0u11KQ1ij5r6gGsEyzqdg9pA=",
+        "lastModified": 1782074121,
+        "narHash": "sha256-1sg/8PNq3S54tVxYNR7oUsQSXwfzdS30OMvHLDnTc9A=",
         "ref": "refs/heads/master",
-        "rev": "6e757216a286d2444ce81ff4cd7551ba4ab0d238",
-        "revCount": 45,
+        "rev": "2a4fa5bff5b8ef39c5c184ea1935684c5bd052d6",
+        "revCount": 67,
         "type": "git",
         "url": "ssh://git@github.com/mitchallain/dash"
       },

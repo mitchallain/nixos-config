@@ -23,6 +23,7 @@
     ../../modules/features/llm-agent.nix
     ../../modules/features/health-check.nix
     ../../modules/features/signal-cli.nix
+    ../../modules/features/local-dns.nix
   ];
 
   # Hostname
@@ -74,9 +75,11 @@
     owner = "mallain";
     mode = "0600";
   };
-  sops.secrets.hermes_openrouter_key = {};
-  sops.secrets.hermes_exa_key = {};
-  sops.secrets.hermes_signal_account = { owner = "signal-cli"; };
+  sops.secrets.hermes_openrouter_key = { };
+  sops.secrets.hermes_exa_key = { };
+  sops.secrets.hermes_signal_account = {
+    owner = "signal-cli";
+  };
   # Write an actual file (not a sops symlink) so virtiofs can expose it inside the VM
   system.activationScripts.hermes-agent-secrets = {
     deps = [ "setupSecrets" ];
@@ -127,6 +130,27 @@
     };
   };
 
+  mySystem.localDns = {
+    enable = true;
+    listenAddress = "192.168.50.154";
+    hosts = {
+      "fractal.mitchellallain.com" = "192.168.50.154";
+      "immich.mitchellallain.com" = "192.168.50.154";
+      "notes.mitchellallain.com" = "192.168.50.154";
+      "dashboard.mitchellallain.com" = "192.168.50.154";
+    };
+  };
+
+  services.nginx.virtualHosts."dashboard.mitchellallain.com" = {
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${toString config.mySystem.dashboard.port}";
+      proxyWebsockets = true;
+    };
+  };
+
+  mySystem.immich.hostname = "immich.mitchellallain.com";
+  mySystem.notes.hostname = "notes.mitchellallain.com";
+
   mySystem.llmAgent.enable = false;
 
   # Enable Docker
@@ -136,7 +160,10 @@
   };
 
   # Suppress failure when a printer is powered off at rebuild time
-  systemd.services.ensure-printers.serviceConfig.SuccessExitStatus = [ 0 1 ];
+  systemd.services.ensure-printers.serviceConfig.SuccessExitStatus = [
+    0
+    1
+  ];
 
   # Printers
   services.printing.drivers = [ pkgs.brlaser ];

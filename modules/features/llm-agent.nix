@@ -234,7 +234,10 @@ in
         systemd.services.hermes-activation-replay = {
           description = "Replay NixOS activation after persistent disk mount";
           after = [ "var-lib-hermes.mount" ];
-          before = [ "hermes-agent.service" "hermes-env-setup.service" ];
+          before = [
+            "hermes-agent.service"
+            "hermes-env-setup.service"
+          ];
           wantedBy = [ "hermes-agent.service" ];
           serviceConfig = {
             Type = "oneshot";
@@ -251,7 +254,10 @@ in
         # Write .env after virtiofs mounts are ready (activation runs too early)
         systemd.services.hermes-env-setup = {
           description = "Write Hermes .env from virtiofs secrets share";
-          after = [ "run-agent\\x2dsecrets.mount" "hermes-activation-replay.service" ];
+          after = [
+            "run-agent\\x2dsecrets.mount"
+            "hermes-activation-replay.service"
+          ];
           before = [ "hermes-agent.service" ];
           wantedBy = [ "hermes-agent.service" ];
           serviceConfig = {
@@ -295,7 +301,10 @@ in
 
         # agent-browser is in the system PATH but the hermes-agent service has a
         # restricted PATH — shutil.which() can't find it. Inject it explicitly.
-        systemd.services.hermes-agent.path = [ pkgs-unstable.agent-browser pkgs.chromium ];
+        systemd.services.hermes-agent.path = [
+          pkgs-unstable.agent-browser
+          pkgs.chromium
+        ];
 
         # Hermes agent (native mode — no container)
         services.hermes-agent = {
