@@ -6,7 +6,14 @@
 }:
 with lib;
 {
-  options.mySystem.immich.enable = mkEnableOption "Immich photo management server";
+  options.mySystem.immich = {
+    enable = mkEnableOption "Immich photo management server";
+    hostname = mkOption {
+      type = types.str;
+      default = "immich.home";
+      description = "Nginx virtual host name";
+    };
+  };
 
   config = mkIf config.mySystem.immich.enable {
     services.immich = {
@@ -21,6 +28,21 @@ with lib;
 
       # GPU acceleration via Nvidia
       accelerationDevices = null;
+    };
+
+    services.nginx = {
+      enable = true;
+      virtualHosts.${config.mySystem.immich.hostname} = {
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${toString config.services.immich.port}";
+          proxyWebsockets = true;
+          extraConfig = ''
+            client_max_body_size 50000m;
+            proxy_read_timeout 600s;
+            proxy_send_timeout 600s;
+          '';
+        };
+      };
     };
 
     # Required for GPU acceleration

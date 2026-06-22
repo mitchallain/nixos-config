@@ -76,9 +76,12 @@ in
         Type = "oneshot";
         User = "root";
         ExecStart = pkgs.writeShellScript "health-check-notify" ''
-          ${if cfg.notify.recipient != null
-            then "recipient=${lib.escapeShellArg cfg.notify.recipient}"
-            else "recipient=$(${pkgs.coreutils}/bin/tr -d '[:space:]' < ${cfg.notify.accountFile})"}
+          ${
+            if cfg.notify.recipient != null then
+              "recipient=${lib.escapeShellArg cfg.notify.recipient}"
+            else
+              "recipient=$(${pkgs.coreutils}/bin/tr -d '[:space:]' < ${cfg.notify.accountFile})"
+          }
           output=$(${pkgs.systemd}/bin/journalctl -u health-check -n 30 --no-pager -o cat 2>/dev/null \
             || echo "(could not retrieve logs)")
           body=$(${pkgs.jq}/bin/jq -n \

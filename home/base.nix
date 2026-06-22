@@ -15,11 +15,16 @@ let
     buildInputs = [ pkgs.makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/nvim \
-        --prefix PATH : ${lib.makeBinPath (with pkgs; [
-          tree-sitter
-          gcc
-          (python3.withPackages (ps: [ ps.pynvim ]))
-        ])}
+        --prefix PATH : ${
+          lib.makeBinPath (
+            with pkgs;
+            [
+              tree-sitter
+              gcc
+              (python3.withPackages (ps: [ ps.pynvim ]))
+            ]
+          )
+        }
     '';
   };
 in
@@ -33,15 +38,17 @@ in
   home.packages = with pkgs; [
     neovimWithExtras
     # Development tools
-    (python3.withPackages (ps: with ps; [
-      openpyxl
-      pandas
-      # PDF parsing
-      pypdf
-      pymupdf
-      pdfminer-six
-      pdfplumber
-    ]))
+    (python3.withPackages (
+      ps: with ps; [
+        openpyxl
+        pandas
+        # PDF parsing
+        pypdf
+        pymupdf
+        pdfminer-six
+        pdfplumber
+      ]
+    ))
     poppler-utils
     nodejs
     rustc
@@ -175,22 +182,38 @@ in
     shellWrapperName = "y";
     theme = {
       mgr = {
-        cwd = { fg = "blue"; };
+        cwd = {
+          fg = "blue";
+        };
         hovered = {
           fg = "#002b36";
           bg = "blue";
           bold = true;
         };
-        marker_selected = { fg = "blue"; bg = "blue"; };
-        marker_copied = { fg = "green"; bg = "green"; };
-        marker_cut = { fg = "red"; bg = "red"; };
+        marker_selected = {
+          fg = "blue";
+          bg = "blue";
+        };
+        marker_copied = {
+          fg = "green";
+          bg = "green";
+        };
+        marker_cut = {
+          fg = "red";
+          bg = "red";
+        };
         tab_active = {
           fg = "#002b36";
           bg = "blue";
           bold = true;
         };
-        tab_inactive = { fg = "#839496"; bg = "#073642"; };
-        border_style = { fg = "#586e75"; };
+        tab_inactive = {
+          fg = "#839496";
+          bg = "#073642";
+        };
+        border_style = {
+          fg = "#586e75";
+        };
       };
       status = {
         mode_normal = {
@@ -208,17 +231,36 @@ in
           bg = "#cb4b16";
           bold = true;
         };
-        permissions_t = { fg = "blue"; };
-        permissions_r = { fg = "yellow"; };
-        permissions_w = { fg = "red"; };
-        permissions_x = { fg = "green"; };
-        permissions_s = { fg = "#586e75"; };
+        permissions_t = {
+          fg = "blue";
+        };
+        permissions_r = {
+          fg = "yellow";
+        };
+        permissions_w = {
+          fg = "red";
+        };
+        permissions_x = {
+          fg = "green";
+        };
+        permissions_s = {
+          fg = "#586e75";
+        };
       };
       filetype = {
         rules = [
-          { mime = "image/*"; fg = "yellow"; }
-          { mime = "video/*"; fg = "magenta"; }
-          { mime = "audio/*"; fg = "magenta"; }
+          {
+            mime = "image/*";
+            fg = "yellow";
+          }
+          {
+            mime = "video/*";
+            fg = "magenta";
+          }
+          {
+            mime = "audio/*";
+            fg = "magenta";
+          }
           {
             mime = "application/zip";
             fg = "green";

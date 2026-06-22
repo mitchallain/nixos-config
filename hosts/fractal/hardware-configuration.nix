@@ -29,7 +29,10 @@
   # iwlwifi: systemd-initrd (default in 26.05) processes the udev coldplug uevent
   # for 00:14.3 before the module is available, and doesn't retry in stage 2.
   # Explicit entry here loads it via systemd-modules-load.service after rootfs is up.
-  boot.kernelModules = [ "kvm-intel" "iwlwifi" ];
+  boot.kernelModules = [
+    "kvm-intel"
+    "iwlwifi"
+  ];
   boot.extraModulePackages = [ ];
 
   fileSystems."/" = {

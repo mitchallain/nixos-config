@@ -8,6 +8,11 @@ with lib;
       default = "/var/lib/mkdocs-notes/site";
       description = "Path to the pre-built static MkDocs site directory";
     };
+    hostname = mkOption {
+      type = types.str;
+      default = "notes.home";
+      description = "Nginx virtual host name";
+    };
   };
 
   config = mkIf config.mySystem.notes.enable {
@@ -23,14 +28,7 @@ with lib;
 
     services.nginx = {
       enable = true;
-      virtualHosts."notes" = {
-        listen = [
-          {
-            addr = "0.0.0.0";
-            port = 8000;
-            ssl = false;
-          }
-        ];
+      virtualHosts.${config.mySystem.notes.hostname} = {
         basicAuthFile = config.sops.secrets.notes_htpasswd.path;
         locations."/" = {
           root = config.mySystem.notes.staticSiteDir;
@@ -40,6 +38,6 @@ with lib;
       };
     };
 
-    networking.firewall.allowedTCPPorts = [ 8000 ];
+    networking.firewall.allowedTCPPorts = [ 80 ];
   };
 }

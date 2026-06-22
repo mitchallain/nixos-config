@@ -1,7 +1,13 @@
 # pythonPkgs/mkdocs-ezlinks-plugin.nix
 # https://github.com/orbikm/mkdocs-ezlinks-plugin
 # Wikilink ([[page]]) resolution for mkdocs; not yet packaged in nixpkgs.
-{ buildPythonPackage, fetchPypi, setuptools, mkdocs, pygtrie }:
+{
+  buildPythonPackage,
+  fetchPypi,
+  setuptools,
+  mkdocs,
+  pygtrie,
+}:
 
 buildPythonPackage rec {
   pname = "mkdocs-ezlinks-plugin";
@@ -14,7 +20,10 @@ buildPythonPackage rec {
   };
 
   build-system = [ setuptools ];
-  dependencies = [ mkdocs pygtrie ];
+  dependencies = [
+    mkdocs
+    pygtrie
+  ];
 
   doCheck = false;
 }
