@@ -38,7 +38,7 @@ let
       name = "zeal-docset-rust";
       docsetName = "Rust.docset";
       url = "https://kapeli.com/feeds/Rust.tgz";
-      hash = "sha256-jJtzuXiCh+v9cduLl95rFly0BnL1xPQOmbwgPLOmsxw=";
+      hash = "sha256-AzHDeUgc2Ni5G8Yn77jfdahMkXM/hLJ0b7sdJMG1aSA=";
     })
   ];
 in

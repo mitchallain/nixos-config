@@ -89,6 +89,8 @@ in
         // Screenshot save location
         screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
+        xwayland
+
         // Autostart applications
         spawn-at-startup "swaybg" "-m" "fill" "-i" "${wallpaper}"
         spawn-at-startup "waybar"
@@ -250,6 +252,7 @@ in
         modules-left = [ "wlr/taskbar" ];
         modules-right = [
           "tray"
+          "bluetooth"
           "network"
           "wireplumber"
           "cpu"
@@ -279,11 +282,24 @@ in
           on-click = "alacritty -e nmtui";
         };
 
+        "bluetooth" = {
+          format = "󰂯";
+          format-on = "󰂯";
+          format-off = "󰂲";
+          format-disabled = "󰂲";
+          format-connected = "󰂱  {device_alias}";
+          format-connected-battery = "󰂱  {device_alias} {device_battery_percentage}%";
+          tooltip-format-connected = "{device_enumerate}";
+          tooltip-format-enumerate-connected = "{device_alias}";
+          on-click = "blueman-manager";
+        };
+
         "wireplumber" = {
           format = "󰕾  {volume}%";
           format-muted = "󰖁  muted";
           on-click = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
           scroll-step = 5;
+          tooltip-format = "{node_name}";
         };
 
         "cpu" = {
@@ -297,8 +313,8 @@ in
         };
 
         "clock" = {
-          format = "󰥔  {:%H:%M}";
-          format-alt = "{:%Y-%m-%d}";
+          format = "󰥔  {:%a %b %d  %H:%M}";
+          format-alt = "{:%Y-%m-%d %H:%M}";
           tooltip-format = "<tt>{calendar}</tt>";
         };
       }
@@ -343,6 +359,7 @@ in
       }
 
       #network,
+      #bluetooth,
       #wireplumber,
       #wireplumber.muted,
       #cpu,
@@ -355,6 +372,15 @@ in
         color: #d0d0d0;
         background: transparent;
         padding: 0 10px;
+      }
+
+      #bluetooth.connected {
+        color: #7fc8ff;
+      }
+
+      #bluetooth.off,
+      #bluetooth.disabled {
+        color: #555555;
       }
 
       #clock {

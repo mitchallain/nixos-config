@@ -69,6 +69,9 @@ in
     lazygit
     delta # Better git diffs
 
+    # Communication
+    zoom-us
+
     # Documentation
     zeal # Offline API documentation browser
     anki # Spaced repetition flashcard app

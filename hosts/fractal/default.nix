@@ -138,6 +138,19 @@
       "immich.mitchellallain.com" = "192.168.50.154";
       "notes.mitchellallain.com" = "192.168.50.154";
       "dashboard.mitchellallain.com" = "192.168.50.154";
+      "health.mitchellallain.com" = "192.168.50.154";
+    };
+  };
+
+  services.health-log = {
+    enable = true;
+    port = 8742;
+  };
+
+  services.nginx.virtualHosts."health.mitchellallain.com" = {
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:8742";
+      proxyWebsockets = true;
     };
   };
 
@@ -186,6 +199,11 @@
       }
     ];
   };
+
+  # Bluetooth
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
+  services.blueman.enable = true;
 
   # Removable storage auto-mounting
   services.udisks2.enable = true;
