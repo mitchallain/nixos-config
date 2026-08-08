@@ -37,6 +37,13 @@ in
   };
 
   config = mkIf cfg.enable {
+    # network-online.target covers cold boot; bind-dynamic covers rebuild restarts
+    # where the target is already satisfied but the LAN IP is briefly unavailable.
+    systemd.services.dnsmasq = {
+      after = [ "network-online.target" ];
+      wants = [ "network-online.target" ];
+    };
+
     services.dnsmasq = {
       enable = true;
       resolveLocalQueries = true;
@@ -46,7 +53,9 @@ in
           "127.0.0.1"
           cfg.listenAddress
         ];
-        bind-interfaces = true;
+        # bind-dynamic: start without the IP assigned, bind when it appears.
+        # Safer than bind-interfaces for addresses that come up after dnsmasq starts.
+        bind-dynamic = true;
         no-resolv = true;
         server = cfg.upstreamServers;
         domain-needed = true;

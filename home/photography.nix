@@ -6,5 +6,6 @@
     shotwell # Photo manager with device import and browsing
     gthumb # Lightweight photo browser and importer
     libgphoto2 # Camera USB import support
+    libheif # heif-convert for HEIC → JPEG/PNG conversion
   ];
 }

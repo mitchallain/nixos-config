@@ -19,6 +19,8 @@
     hermes-agent.inputs.nixpkgs.follows = "nixpkgs-unstable";
     dash.url = "git+ssh://git@github.com/mitchallain/dash";
     dash.inputs.nixpkgs.follows = "nixpkgs";
+    health.url = "git+ssh://git@github.com/mitchallain/health";
+    health.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
@@ -34,6 +36,7 @@
       microvm,
       hermes-agent,
       dash,
+      health,
     }:
     let
       systems = [
@@ -83,7 +86,7 @@
             {
               nixpkgs.overlays = [
                 localOverlay
-                llm-agents-nix.overlays.default
+                llm-agents-nix.overlays.shared-nixpkgs
               ];
             }
             home-manager.nixosModules.home-manager
@@ -139,6 +142,7 @@
             ./hosts/fractal
             sops-nix.nixosModules.sops
             dash.nixosModules.default
+            health.nixosModules.default
             {
               mySystem.dashboard = {
                 enable = true;
