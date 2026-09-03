@@ -74,5 +74,7 @@
     xwayland # Compatibility for X11 apps
     nautilus # File manager
     polkit_gnome # Polkit authentication agent
+    networkmanagerapplet # WiFi/network management GUI
+    pavucontrol # PipeWire/PulseAudio volume control GUI
   ];
 }
