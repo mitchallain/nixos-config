@@ -69,9 +69,6 @@ in
     lazygit
     delta # Better git diffs
 
-    # Communication
-    zoom-us
-
     # Documentation
     zeal # Offline API documentation browser
     anki # Spaced repetition flashcard app
@@ -85,6 +82,8 @@ in
     bat # Better cat
     eza # Better ls
     zoxide # Better cd
+  ] ++ lib.optionals pkgs.stdenv.hostPlatform.isx86_64 [
+    zoom-us
   ];
 
   # Environment variables
