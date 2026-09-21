@@ -72,6 +72,7 @@
     brightnessctl # Screen brightness
     libnotify # Desktop notifications (notify-send)
     xwayland # Compatibility for X11 apps
+    xwayland-satellite # XWayland integration for niri
     nautilus # File manager
     polkit_gnome # Polkit authentication agent
     networkmanagerapplet # WiFi/network management GUI

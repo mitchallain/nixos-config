@@ -89,8 +89,6 @@ in
         // Screenshot save location
         screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
-        xwayland
-
         // Autostart applications
         spawn-at-startup "swaybg" "-m" "fill" "-i" "${wallpaper}"
         spawn-at-startup "waybar"
