@@ -35,56 +35,59 @@ in
   home.stateVersion = "25.11";
 
   # User-level packages
-  home.packages = with pkgs; [
-    neovimWithExtras
-    # Development tools
-    (python3.withPackages (
-      ps: with ps; [
-        openpyxl
-        pandas
-        # PDF parsing
-        pypdf
-        pymupdf
-        pdfminer-six
-        pdfplumber
-      ]
-    ))
-    poppler-utils
-    nodejs
-    rustc
-    cargo
+  home.packages =
+    with pkgs;
+    [
+      neovimWithExtras
+      # Development tools
+      (python3.withPackages (
+        ps: with ps; [
+          openpyxl
+          pandas
+          # PDF parsing
+          pypdf
+          pymupdf
+          pdfminer-six
+          pdfplumber
+        ]
+      ))
+      poppler-utils
+      nodejs
+      rustc
+      cargo
 
-    # Git tools
-    forgit # Interactive git commands via fzf (gd, gco, gss, etc.)
+      # Git tools
+      forgit # Interactive git commands via fzf (gd, gco, gss, etc.)
 
-    # AI tools (from llm-agents-nix overlay)
-    llm-agents.claude-code
-    llm-agents.qmd
+      # AI tools (from llm-agents-nix overlay)
+      llm-agents.claude-code
+      llm-agents.qmd
 
-    # CLI tools
-    jq
-    yq
-    tree
-    ncdu
-    lazygit
-    delta # Better git diffs
+      # CLI tools
+      jq
+      yq
+      tree
+      ncdu
+      lazygit
+      delta # Better git diffs
 
-    # Documentation
-    zeal # Offline API documentation browser
-    anki # Spaced repetition flashcard app
+      # Documentation
+      zeal # Offline API documentation browser
+      anki # Spaced repetition flashcard app
 
-    # System monitoring
-    iotop
-    iftop
-    duf # Modern df alternative
+      # System monitoring
+      iotop
+      iftop
+      duf # Modern df alternative
 
-    # Modern CLI replacements
-    bat # Better cat
-    eza # Better ls
-    zoxide # Better cd
-  ] ++ lib.optionals pkgs.stdenv.hostPlatform.isx86_64 [
-    zoom-us
-  ];
+      # Modern CLI replacements
+      bat # Better cat
+      eza # Better ls
+      zoxide # Better cd
+    ]
+    ++ lib.optionals pkgs.stdenv.hostPlatform.isx86_64 [
+      zoom-us
+    ];
 
   # Environment variables
   home.sessionVariables = {

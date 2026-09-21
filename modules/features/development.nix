@@ -24,13 +24,19 @@ with lib;
   };
 
   config = mkIf config.mySystem.development.enable {
+    fonts.packages = [
+      pkgs.nerd-fonts.meslo-lg
+    ];
+
     environment.systemPackages =
       with pkgs;
       [
         # Core development tools
+        alacritty
         git
         gh # GitHub CLI
         lazygit
+        sublime-merge
         delta # Better git diffs
         ripgrep
         xclip
