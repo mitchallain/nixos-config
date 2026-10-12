@@ -61,6 +61,7 @@ in
 
       # AI tools (from llm-agents-nix overlay)
       llm-agents.claude-code
+      llm-agents.pi
       llm-agents.qmd
 
       # CLI tools
@@ -84,6 +85,8 @@ in
       bat # Better cat
       eza # Better ls
       zoxide # Better cd
+      ranger
+      libtree
     ]
     ++ lib.optionals pkgs.stdenv.hostPlatform.isx86_64 [
       zoom-us

@@ -1,6 +1,18 @@
 # modules/common/niri.nix - Niri scrollable-tiling Wayland compositor
 { config, pkgs, ... }:
 
+let
+  flameshot-path = pkgs.writeShellScriptBin "flameshot-path" ''
+    dir="$HOME/Pictures/Screenshots"
+    mkdir -p "$dir"
+    file="$dir/screenshot-$(date +%Y%m%d-%H%M%S).png"
+    flameshot gui --path "$file"
+    if [ -f "$file" ]; then
+      printf '%s' "$file" | wl-copy
+    fi
+  '';
+in
+
 {
   # Enable niri compositor (installs niri, sets up polkit, etc.)
   programs.niri = {
@@ -67,6 +79,8 @@
     swayidle # Idle management (dim/lock/suspend)
     grim # Screenshot tool
     slurp # Screen region selector (used with grim)
+    flameshot # Screenshot tool with annotation
+    flameshot-path # Wrapper: saves screenshot and copies path to clipboard
     wl-clipboard # Clipboard (wl-copy / wl-paste)
     cliphist # Clipboard history
     brightnessctl # Screen brightness
@@ -76,6 +90,7 @@
     nautilus # File manager
     polkit_gnome # Polkit authentication agent
     networkmanagerapplet # WiFi/network management GUI
+    overskride # Bluetooth management
     pavucontrol # PipeWire/PulseAudio volume control GUI
   ];
 }
