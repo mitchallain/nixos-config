@@ -5,6 +5,8 @@
   # System state version - DO NOT CHANGE after initial install
   system.stateVersion = "25.11";
 
+  documentation.man.cache.enable = true;
+
   # Bootloader configuration for UEFI
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -60,6 +62,8 @@
     fzf
     ripgrep
     fd
+    man-pages
+    man-pages-posix
 
     # Development tools
     gcc

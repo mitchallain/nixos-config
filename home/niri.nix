@@ -1,7 +1,8 @@
 # home/niri.nix - Niri compositor user configuration
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let
+  cfg = config.niriConfig;
   wallpaper = pkgs.fetchurl {
     url = "https://w.wallhaven.cc/full/o3/wallhaven-o3r9p7.png";
     sha256 = "sha256-IN1+5sIyuSOEilxsq/v5gxsSdCYCT3ZGrp0IzY64ICo=";
@@ -9,6 +10,20 @@ let
 in
 
 {
+  options.niriConfig = {
+    extraConfig = lib.mkOption {
+      type = lib.types.lines;
+      default = "";
+      description = "Extra KDL config appended to the niri config (e.g. output blocks).";
+    };
+    powerOffMonitorsOnLock = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Whether locking the screen also powers off monitors after a delay.";
+    };
+  };
+
+  config = {
   # Cursor theme - Adwaita 24px is clean and standard
   home.pointerCursor = {
     gtk.enable = true;
@@ -41,14 +56,8 @@ in
             }
         }
 
-        // Monitor configuration
-        // Run `niri msg outputs` to see connected outputs
-        // Uncomment and adjust as needed:
-        // output "DP-1" {
-        //     mode "2560x1440@144.001"
-        //     scale 1.0
-        //     position x=0 y=0
-        // }
+        // Monitor configuration (set via niriConfig.extraConfig)
+        ${cfg.extraConfig}
 
         layout {
             gaps 8
@@ -86,6 +95,23 @@ in
             draw-border-with-background false
         }
 
+        // Zoom: float and don't focus popup/notification windows
+        window-rule {
+            match app-id="zoom" title="^zoom$"
+            open-floating true
+            open-focused false
+        }
+        window-rule {
+            match app-id="zoom" title="^as_toolbar$"
+            open-floating true
+            open-focused false
+        }
+        window-rule {
+            match app-id="zoom" title="^Zoom$"
+            open-floating true
+            open-focused false
+        }
+
         // Screenshot save location
         screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
@@ -93,7 +119,7 @@ in
         spawn-at-startup "swaybg" "-m" "fill" "-i" "${wallpaper}"
         spawn-at-startup "waybar"
     spawn-at-startup "/run/current-system/sw/libexec/polkit-gnome-authentication-agent-1"
-        spawn-at-startup "swayidle" "-w" "timeout" "300" "swaylock -f" "timeout" "310" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "swaylock -f"
+        spawn-at-startup "swayidle" "-w" "timeout" "300" "swaylock -f" ${lib.optionalString cfg.powerOffMonitorsOnLock ''"timeout" "310" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors"''} "before-sleep" "swaylock -f"
 
         // Environment variables passed to all spawned processes
         environment {
@@ -176,13 +202,22 @@ in
             Mod+Ctrl+Shift+Down { move-column-to-workspace-down; }
 
             // ── Multi-monitor ──────────────────────────────────────────────────────
-            Mod+Shift+Tab { focus-monitor-left; }
-            Mod+Tab       { focus-monitor-right; }
-            Mod+Shift+Ctrl+Left  { move-column-to-monitor-left; }
-            Mod+Shift+Ctrl+Right { move-column-to-monitor-right; }
+            Mod+Alt+H     { focus-monitor-left; }
+            Mod+Alt+L     { focus-monitor-right; }
+            Mod+Alt+Left  { focus-monitor-left; }
+            Mod+Alt+Right { focus-monitor-right; }
+
+            Mod+Alt+Shift+H     { move-column-to-monitor-left; }
+            Mod+Alt+Shift+L     { move-column-to-monitor-right; }
+            Mod+Alt+Shift+Left  { move-column-to-monitor-left; }
+            Mod+Alt+Shift+Right { move-column-to-monitor-right; }
+
+            // Recovery: force the laptop panel on and restart kanshi (e.g. undocked with kanshi down)
+            Mod+Alt+P allow-when-locked=true { spawn "sh" "-c" "niri msg output eDP-1 on; systemctl --user restart kanshi"; }
 
             // ── Screenshots ────────────────────────────────────────────────────────
-            Print             { screenshot; }
+            Print             { spawn "flameshot-path"; }
+            Mod+Shift+S       { spawn "flameshot-path"; }
             Ctrl+Print        { screenshot-screen; }
             Alt+Print         { screenshot-window; }
 
@@ -197,7 +232,7 @@ in
             XF86MonBrightnessDown { spawn "brightnessctl" "set" "10%-"; }
 
             // ── Session ────────────────────────────────────────────────────────────
-            Mod+Ctrl+L { spawn "sh" "-c" "swaylock -f & sleep 10 && pgrep swaylock && niri msg action power-off-monitors"; }
+            Mod+Ctrl+L { spawn "sh" "-c" "${if cfg.powerOffMonitorsOnLock then "swaylock -f & sleep 10 && pgrep swaylock && niri msg action power-off-monitors" else "swaylock -f"}"; }
             Mod+Shift+E { quit; }
 
             // ── Help ───────────────────────────────────────────────────────────────
@@ -229,7 +264,19 @@ in
   # Mako notification daemon
   services.mako = {
     enable = true;
-    settings.default-timeout = 10000;
+    settings = {
+      default-timeout = 10000;
+      font = "MesloLGMDZ Nerd Font Mono 9";
+      width = 340;
+      height = 180;
+      padding = "8";
+      margin = "8";
+      border-radius = "8";
+      background-color = "#0c0c10e0";
+      text-color = "#d0d0d0";
+      border-color = "#404040";
+      border-size = "1";
+    };
   };
 
   # Ensure Screenshots directory exists
@@ -250,17 +297,19 @@ in
         modules-left = [ "wlr/taskbar" ];
         modules-right = [
           "tray"
+          "custom/caffeine"
           "bluetooth"
           "network"
           "wireplumber"
           "cpu"
           "memory"
+          "battery"
           "clock"
         ];
 
         "wlr/taskbar" = {
           format = "{icon}";
-          icon-size = 16;
+          icon-size = 22;
           icon-theme = "Adwaita";
           tooltip-format = "{title}";
           on-click = "activate";
@@ -268,15 +317,24 @@ in
         };
 
         "tray" = {
-          icon-size = 18;
+          icon-size = 16;
           spacing = 6;
+        };
+
+        # Waybar's built-in idle-inhibitor doesn't work on niri; using custom/caffeine instead.
+        "custom/caffeine" = {
+          format = "{}";
+          exec = "if pgrep -x swayidle >/dev/null && [ ! -f /tmp/caffeine-on ]; then echo '󰛊'; else echo '󰅶'; fi";
+          on-click = "if [ -f /tmp/caffeine-on ]; then rm /tmp/caffeine-on; pkill -CONT swayidle; else touch /tmp/caffeine-on; pkill -STOP swayidle; fi";
+          interval = 2;
         };
 
         "network" = {
           format-wifi = "󰤨  {essid}";
-          format-ethernet = "󰈀  {ifname}";
-          format-disconnected = "󰤭  disconnected";
+          format-ethernet = "󰈀";
+          format-disconnected = "󰤭";
           tooltip-format-wifi = "{essid} — {signalStrength}%";
+          tooltip-format-ethernet = "{ifname} — {ipaddr}";
           on-click = "alacritty -e nmtui";
         };
 
@@ -285,11 +343,11 @@ in
           format-on = "󰂯";
           format-off = "󰂲";
           format-disabled = "󰂲";
-          format-connected = "󰂱  {device_alias}";
-          format-connected-battery = "󰂱  {device_alias} {device_battery_percentage}%";
+          format-connected = "󰂱";
+          format-connected-battery = "󰂱";
           tooltip-format-connected = "{device_enumerate}";
-          tooltip-format-enumerate-connected = "{device_alias}";
-          on-click = "blueman-manager";
+          tooltip-format-enumerate-connected = "{device_alias} {device_battery_percentage}%";
+          on-click = "overskride";
         };
 
         "wireplumber" = {
@@ -302,16 +360,30 @@ in
 
         "cpu" = {
           interval = 5;
-          format = "󰻠  {usage}%";
+          format = "<span size='large'>󰻠</span>  {usage}%";
         };
 
         "memory" = {
           interval = 10;
-          format = "󰍛  {used:0.1f}G";
+          format = "<span size='large'>󰍛</span>  {used:0.1f}G";
+        };
+
+        "battery" = {
+          interval = 10;
+          states = {
+            warning = 30;
+            critical = 15;
+          };
+          format = "{icon}  {capacity}%";
+          format-charging = "󰂄  {capacity}%";
+          format-plugged = "󰚥  {capacity}%";
+          format-full = "󰁹  {capacity}%";
+          format-icons = [ "󰁺" "󰁻" "󰁼" "󰁽" "󰁾" "󰁿" "󰂀" "󰂁" "󰂂" "󰁹" ];
+          tooltip-format = "{timeTo} — {power:.1f}W";
         };
 
         "clock" = {
-          format = "󰥔  {:%a %b %d  %H:%M}";
+          format = "<span size='large'>󰥔</span>  {:%a %b %d  %H:%M}";
           format-alt = "{:%Y-%m-%d %H:%M}";
           tooltip-format = "<tt>{calendar}</tt>";
         };
@@ -321,7 +393,7 @@ in
     style = ''
       * {
         font-family: "MesloLGMDZ Nerd Font Mono", monospace;
-        font-size: 13px;
+        font-size: 14px;
         border: none;
         border-radius: 0;
         min-height: 0;
@@ -341,7 +413,7 @@ in
 
       #taskbar button {
         padding: 0 5px;
-        margin: 6px 2px;
+        margin: 6px 4px;
         border-radius: 6px;
         background: transparent;
         box-shadow: none;
@@ -366,10 +438,32 @@ in
       #memory,
       #memory.warning,
       #memory.critical,
+      #battery,
+      #custom-caffeine,
       #clock {
         color: #d0d0d0;
         background: transparent;
         padding: 0 10px;
+      }
+
+      #tray {
+        padding: 0 10px;
+      }
+
+      #tray > * {
+        margin: 0 4px;
+      }
+
+      #bluetooth,
+      #network,
+      #custom-caffeine {
+        font-size: 18px;
+      }
+
+      #cpu,
+      #memory,
+      #clock {
+        font-size: 13px;
       }
 
       #bluetooth.connected {
@@ -381,9 +475,23 @@ in
         color: #555555;
       }
 
+      #battery.warning {
+        color: #f0c674;
+      }
+
+      #battery.critical {
+        color: #cc6666;
+      }
+
+      #battery.charging,
+      #battery.plugged {
+        color: #8abeb7;
+      }
+
       #clock {
         padding-right: 14px;
       }
     '';
+  };
   };
 }

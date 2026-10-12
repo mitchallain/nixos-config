@@ -57,6 +57,10 @@ with lib;
         tree
         ncdu
 
+        # Secrets management
+        sops
+        ssh-to-age
+
         # Language-specific tools
       ]
       ++ optionals config.mySystem.development.languages.python [
