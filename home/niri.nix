@@ -212,6 +212,11 @@ in
             Mod+Alt+Shift+Left  { move-column-to-monitor-left; }
             Mod+Alt+Shift+Right { move-column-to-monitor-right; }
 
+            Mod+Alt+Ctrl+H     { move-workspace-to-monitor-left; }
+            Mod+Alt+Ctrl+L     { move-workspace-to-monitor-right; }
+            Mod+Alt+Ctrl+Left  { move-workspace-to-monitor-left; }
+            Mod+Alt+Ctrl+Right { move-workspace-to-monitor-right; }
+
             // Recovery: force the laptop panel on and restart kanshi (e.g. undocked with kanshi down)
             Mod+Alt+P allow-when-locked=true { spawn "sh" "-c" "niri msg output eDP-1 on; systemctl --user restart kanshi"; }
 
