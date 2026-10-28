@@ -3,7 +3,7 @@
 
 let
   cfg = config.niriConfig;
-  wallpaper = pkgs.fetchurl {
+  defaultWallpaper = pkgs.fetchurl {
     url = "https://w.wallhaven.cc/full/o3/wallhaven-o3r9p7.png";
     sha256 = "sha256-IN1+5sIyuSOEilxsq/v5gxsSdCYCT3ZGrp0IzY64ICo=";
   };
@@ -11,6 +11,11 @@ in
 
 {
   options.niriConfig = {
+    wallpaper = lib.mkOption {
+      type = lib.types.path;
+      default = defaultWallpaper;
+      description = "Wallpaper image passed to swaybg.";
+    };
     extraConfig = lib.mkOption {
       type = lib.types.lines;
       default = "";
@@ -115,8 +120,16 @@ in
         // Screenshot save location
         screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
+        // Blur the actual windows beneath Vicinae rather than x-raying to the backdrop
+        layer-rule {
+            match namespace="^vicinae$"
+            background-effect {
+                xray false
+            }
+        }
+
         // Autostart applications
-        spawn-at-startup "swaybg" "-m" "fill" "-i" "${wallpaper}"
+        spawn-at-startup "swaybg" "-m" "fill" "-i" "${cfg.wallpaper}"
         spawn-at-startup "waybar"
     spawn-at-startup "/run/current-system/sw/libexec/polkit-gnome-authentication-agent-1"
         spawn-at-startup "swayidle" "-w" "timeout" "300" "swaylock -f" ${lib.optionalString cfg.powerOffMonitorsOnLock ''"timeout" "310" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors"''} "before-sleep" "swaylock -f"
@@ -134,7 +147,9 @@ in
             // ── Launchers ──────────────────────────────────────────────────────────
             Mod+Return   { spawn "alacritty"; }
             Alt+Shift+T  { spawn "alacritty"; }  // Mirror GNOME terminal shortcut
-            Mod+D        { spawn "fuzzel"; }
+            Mod+D        repeat=false { spawn "vicinae" "toggle"; }
+            Mod+Space    repeat=false { spawn "vicinae" "toggle"; }
+            Mod+V        repeat=false { spawn "vicinae" "vicinae://launch/clipboard/history?toggle=true"; }
             Mod+E        { spawn "nautilus"; }
 
             // ── Window management ──────────────────────────────────────────────────
@@ -286,6 +301,68 @@ in
 
   # Ensure Screenshots directory exists
   home.file."Pictures/Screenshots/.keep".text = "";
+
+  # Vicinae launcher & command palette (Pond OS theme & UX settings)
+  programs.vicinae = {
+    enable = true;
+    systemd = {
+      enable = true;
+      autoStart = true;
+    };
+    themes.pond-dark = {
+      meta = {
+        version = 1;
+        name = "Pond Dark";
+        description = "Default dark theme from Pond OS";
+        variant = "dark";
+        inherits = "vicinae-dark";
+      };
+      colors = {
+        core = {
+          background = "#181818";
+          foreground = "#ffffff";
+          secondary_background = "#262626";
+          border = "#303030";
+          accent = "#cba6f7";
+        };
+        main_window = {
+          border = "#303030";
+        };
+        text = {
+          muted = "#99ffffff";
+          placeholder = "#33ffffff";
+        };
+        list.item.hover = {
+          background = "#262626";
+        };
+      };
+    };
+    settings = {
+      telemetry.system_info = false;
+      search_files_in_root = false;
+      activate_on_single_click = true;
+      pop_to_root_on_close = true;
+      font.normal = {
+        family = "Onest";
+        size = 11.25;
+      };
+      theme = {
+        dark = {
+          name = "pond-dark";
+          icon_theme = "auto";
+        };
+        light = {
+          name = "pond-dark";
+          icon_theme = "auto";
+        };
+      };
+      launcher_window = {
+        opacity = 0.7;
+        material = "blur";
+        rounding = 24;
+      };
+    };
+  };
 
   # Waybar
   programs.waybar = {

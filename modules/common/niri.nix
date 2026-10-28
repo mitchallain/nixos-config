@@ -69,11 +69,16 @@ in
     SDL_VIDEODRIVER = "wayland"; # SDL apps: use Wayland
   };
 
+  # UI font used by Vicinae / Pond theme
+  fonts.packages = [
+    (pkgs.google-fonts.override { fonts = [ "Onest" ]; })
+  ];
+
   # Essential packages for a functional niri desktop
   environment.systemPackages = with pkgs; [
     waybar # Status bar
     swaybg # Wallpaper setter
-    fuzzel # App launcher
+    vicinae # App launcher & command palette
     mako # Notification daemon
     swaylock # Screen locker
     swayidle # Idle management (dim/lock/suspend)
