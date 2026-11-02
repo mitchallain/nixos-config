@@ -7,30 +7,24 @@ let
     url = "https://w.wallhaven.cc/full/o3/wallhaven-o3r9p7.png";
     sha256 = "sha256-IN1+5sIyuSOEilxsq/v5gxsSdCYCT3ZGrp0IzY64ICo=";
   };
-  lockCmd = if cfg.bar == "pond" then "${pkgs.pond-shell}/bin/pond-lock" else "swaylock -f";
-  isLockedCmd =
-    if cfg.bar == "pond" then
-      ''[ "$(qs -c pond-lockscreen ipc call lockscreen isLocked 2>/dev/null)" = "true" ]''
-    else
-      "pgrep swaylock";
 in
 
 {
   options.niriConfig = {
-    bar = lib.mkOption {
-      type = lib.types.enum [ "pond" "waybar" ];
-      default = "pond";
-      description = "Which status bar / shell to run ('pond' for Pond OS Quickshell sidebar, 'waybar' for top horizontal Waybar).";
-    };
     wallpaper = lib.mkOption {
       type = lib.types.path;
       default = defaultWallpaper;
       description = "Wallpaper image passed to swaybg.";
     };
+    lockCommand = lib.mkOption {
+      type = lib.types.str;
+      default = "swaylock -f";
+      description = "Command executed to lock the session (swayidle and Mod+Ctrl+L).";
+    };
     extraConfig = lib.mkOption {
       type = lib.types.lines;
       default = "";
-      description = "Extra KDL config appended to the niri config (e.g. output blocks).";
+      description = "Extra KDL config appended to the niri config (e.g. output blocks or includes).";
     };
     powerOffMonitorsOnLock = lib.mkOption {
       type = lib.types.bool;
@@ -40,8 +34,6 @@ in
   };
 
   config = {
-  home.packages = lib.optional (cfg.bar == "pond") pkgs.pond-shell;
-
   # Cursor theme - Adwaita 24px is clean and standard
   home.pointerCursor = {
     gtk.enable = true;
@@ -73,9 +65,6 @@ in
                 dwt  // disable-while-typing
             }
         }
-
-        // Monitor configuration (set via niriConfig.extraConfig)
-        ${cfg.extraConfig}
 
         layout {
             gaps 8
@@ -133,20 +122,11 @@ in
         // Screenshot save location
         screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 
-        // Blur the actual windows beneath Vicinae and Pond shell rather than x-raying to the backdrop
-        layer-rule {
-            match namespace="^pond-((sidebar|volume|brightness|keyboard)$|calendar-|battery-|notification-|settings-)"
-            match namespace="^vicinae$"
-            background-effect {
-                xray false
-            }
-        }
-
         // Autostart applications
         spawn-at-startup "swaybg" "-m" "fill" "-i" "${cfg.wallpaper}"
-        ${if cfg.bar == "pond" then ''spawn-at-startup "qs" "-c" "pond-shell"'' else ''spawn-at-startup "waybar"''}
+        ${lib.optionalString config.programs.waybar.enable ''spawn-at-startup "waybar"''}
     spawn-at-startup "/run/current-system/sw/libexec/polkit-gnome-authentication-agent-1"
-        spawn-at-startup "swayidle" "-w" "timeout" "300" "${lockCmd}" ${lib.optionalString cfg.powerOffMonitorsOnLock ''"timeout" "310" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors"''} "before-sleep" "${lockCmd}" "lock" "${lockCmd}"
+        spawn-at-startup "swayidle" "-w" "timeout" "300" "${cfg.lockCommand}" ${lib.optionalString cfg.powerOffMonitorsOnLock ''"timeout" "310" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors"''} "before-sleep" "${cfg.lockCommand}" "lock" "${cfg.lockCommand}"
 
         // Environment variables passed to all spawned processes
         environment {
@@ -158,17 +138,11 @@ in
         }
 
         binds {
-            // ── Launchers & Shell ──────────────────────────────────────────────────
+            // ── Launchers ──────────────────────────────────────────────────────────
             Mod+Return   { spawn "alacritty"; }
             Alt+Shift+T  { spawn "alacritty"; }  // Mirror GNOME terminal shortcut
-            Mod+D        repeat=false { spawn "vicinae" "toggle"; }
-            Mod+Space    repeat=false { spawn "vicinae" "toggle"; }
-            Mod+V        repeat=false { spawn "vicinae" "vicinae://launch/clipboard/history?toggle=true"; }
+            Mod+D        { spawn "fuzzel"; }
             Mod+E        { spawn "nautilus"; }
-            ${lib.optionalString (cfg.bar == "pond") ''
-            Mod+B        repeat=false { spawn "qs" "-c" "pond-shell" "ipc" "call" "sidebar" "toggle"; }
-            Mod+Comma    repeat=false { spawn "qs" "-c" "pond-shell" "ipc" "call" "settings" "toggle"; }
-            ''}
 
             // ── Window management ──────────────────────────────────────────────────
             Mod+Q { close-window; }
@@ -260,38 +234,24 @@ in
             Alt+Print         { screenshot-window; }
 
             // ── Audio ──────────────────────────────────────────────────────────────
-            ${if cfg.bar == "pond" then ''
-            XF86AudioRaiseVolume  allow-when-locked=true { spawn "qs" "-c" "pond-shell" "ipc" "call" "volume" "increase"; }
-            XF86AudioLowerVolume  allow-when-locked=true { spawn "qs" "-c" "pond-shell" "ipc" "call" "volume" "decrease"; }
-            XF86AudioMute         allow-when-locked=true repeat=false { spawn "qs" "-c" "pond-shell" "ipc" "call" "volume" "muteOutput"; }
-            XF86AudioMicMute      repeat=false { spawn "qs" "-c" "pond-shell" "ipc" "call" "volume" "muteInput"; }
-            XF86AudioNext         allow-when-locked=true repeat=false { spawn "qs" "-c" "pond-shell" "ipc" "call" "media" "next"; }
-            XF86AudioPrev         allow-when-locked=true repeat=false { spawn "qs" "-c" "pond-shell" "ipc" "call" "media" "previous"; }
-            XF86AudioPlay         allow-when-locked=true repeat=false { spawn "qs" "-c" "pond-shell" "ipc" "call" "media" "playPause"; }
-            XF86AudioPause        allow-when-locked=true repeat=false { spawn "qs" "-c" "pond-shell" "ipc" "call" "media" "playPause"; }
-            '' else ''
             XF86AudioRaiseVolume  allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"; }
             XF86AudioLowerVolume  allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"; }
             XF86AudioMute         allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
             XF86AudioMicMute                             { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
-            ''}
 
             // ── Brightness ─────────────────────────────────────────────────────────
-            ${if cfg.bar == "pond" then ''
-            XF86MonBrightnessUp   allow-when-locked=true { spawn "qs" "-c" "pond-shell" "ipc" "call" "brightness" "increase"; }
-            XF86MonBrightnessDown allow-when-locked=true { spawn "qs" "-c" "pond-shell" "ipc" "call" "brightness" "decrease"; }
-            '' else ''
             XF86MonBrightnessUp   { spawn "brightnessctl" "set" "+10%"; }
             XF86MonBrightnessDown { spawn "brightnessctl" "set" "10%-"; }
-            ''}
 
             // ── Session ────────────────────────────────────────────────────────────
-            Mod+Ctrl+L { spawn "sh" "-c" "${if cfg.powerOffMonitorsOnLock then "${lockCmd} & sleep 10 && ${isLockedCmd} && niri msg action power-off-monitors" else lockCmd}"; }
+            Mod+Ctrl+L { spawn "sh" "-c" "${if cfg.powerOffMonitorsOnLock then "${cfg.lockCommand} & sleep 10 && pgrep swaylock && niri msg action power-off-monitors" else cfg.lockCommand}"; }
             Mod+Shift+E { quit; }
 
             // ── Help ───────────────────────────────────────────────────────────────
             Mod+Shift+Slash { show-hotkey-overlay; }
         }
+
+        ${cfg.extraConfig}
   '';
 
   # udiskie - auto-mount removable storage
@@ -315,9 +275,9 @@ in
     };
   };
 
-  # Mako notification daemon (only when using waybar; pond-shell has its own notification daemon)
+  # Mako notification daemon
   services.mako = {
-    enable = cfg.bar == "waybar";
+    enable = lib.mkDefault true;
     settings = {
       default-timeout = 10000;
       font = "MesloLGMDZ Nerd Font Mono 9";
@@ -336,81 +296,9 @@ in
   # Ensure Screenshots directory exists
   home.file."Pictures/Screenshots/.keep".text = "";
 
-  # Vicinae launcher & command palette (Pond OS theme & UX settings)
-  programs.vicinae = {
-    enable = true;
-    systemd = {
-      enable = true;
-      autoStart = true;
-    };
-    themes.pond-dark = {
-      meta = {
-        version = 1;
-        name = "Pond Dark";
-        description = "Default dark theme from Pond OS";
-        variant = "dark";
-        inherits = "vicinae-dark";
-      };
-      colors = {
-        core = {
-          background = "#181818";
-          foreground = "#ffffff";
-          secondary_background = "#262626";
-          border = "#303030";
-          accent = "#cba6f7";
-        };
-        main_window = {
-          border = "#303030";
-        };
-        text = {
-          muted = "#99ffffff";
-          placeholder = "#33ffffff";
-        };
-        list.item.hover = {
-          background = "#262626";
-        };
-      };
-    };
-    settings = {
-      telemetry.system_info = false;
-      search_files_in_root = false;
-      activate_on_single_click = true;
-      pop_to_root_on_close = true;
-      font.normal = {
-        family = "Onest";
-        size = 11.25;
-      };
-      theme = {
-        dark = {
-          name = "pond-dark";
-          icon_theme = "auto";
-        };
-        light = {
-          name = "pond-dark";
-          icon_theme = "auto";
-        };
-      };
-      launcher_window = {
-        opacity = 0.7;
-        material = "blur";
-        rounding = 24;
-      };
-    };
-  };
-
-  # Quickshell (Pond OS sidebar + popouts + lockscreen)
-  programs.quickshell = {
-    enable = cfg.bar == "pond";
-    activeConfig = "pond-shell";
-    configs = {
-      pond-shell = "${pkgs.pond-shell}/share/pond-interface/shell";
-      pond-lockscreen = "${pkgs.pond-shell}/share/pond-interface/lockscreen";
-    };
-  };
-
-  # Waybar (kept intact for easy switching via niriConfig.bar = "waybar")
+  # Waybar
   programs.waybar = {
-    enable = cfg.bar == "waybar";
+    enable = lib.mkDefault true;
     settings = [
       {
         layer = "top";
