@@ -211,18 +211,18 @@ in
             // ── Multi-monitor ──────────────────────────────────────────────────────
             Mod+Alt+H     { focus-monitor-left; }
             Mod+Alt+L     { focus-monitor-right; }
-            Mod+Alt+Left  { focus-monitor-left; }
-            Mod+Alt+Right { focus-monitor-right; }
+            Mod+Alt+Left  hotkey-overlay-title="Focus Monitor Left"  { focus-monitor-left; }
+            Mod+Alt+Right hotkey-overlay-title="Focus Monitor Right" { focus-monitor-right; }
 
             Mod+Alt+Shift+H     { move-column-to-monitor-left; }
             Mod+Alt+Shift+L     { move-column-to-monitor-right; }
-            Mod+Alt+Shift+Left  { move-column-to-monitor-left; }
-            Mod+Alt+Shift+Right { move-column-to-monitor-right; }
+            Mod+Alt+Shift+Left  hotkey-overlay-title="Move Column to Monitor Left"  { move-column-to-monitor-left; }
+            Mod+Alt+Shift+Right hotkey-overlay-title="Move Column to Monitor Right" { move-column-to-monitor-right; }
 
             Mod+Alt+Ctrl+H     { move-workspace-to-monitor-left; }
             Mod+Alt+Ctrl+L     { move-workspace-to-monitor-right; }
-            Mod+Alt+Ctrl+Left  { move-workspace-to-monitor-left; }
-            Mod+Alt+Ctrl+Right { move-workspace-to-monitor-right; }
+            Mod+Alt+Ctrl+Left  hotkey-overlay-title="Move Workspace to Monitor Left"  { move-workspace-to-monitor-left; }
+            Mod+Alt+Ctrl+Right hotkey-overlay-title="Move Workspace to Monitor Right" { move-workspace-to-monitor-right; }
 
             // Recovery: force the laptop panel on and restart kanshi (e.g. undocked with kanshi down)
             Mod+Alt+P allow-when-locked=true { spawn "sh" "-c" "niri msg output eDP-1 on; systemctl --user restart kanshi"; }
