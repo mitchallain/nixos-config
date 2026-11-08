@@ -184,6 +184,22 @@ in
   home.file.".ipython/profile_default/startup".source =
     config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/ipython/profile_default/startup";
 
+  # Pi coding agent
+  home.file.".pi/agent/APPEND_SYSTEM.md".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/pi/APPEND_SYSTEM.md";
+  home.file.".pi/agent/CLAUDE.md".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/claude/CLAUDE.md";
+  home.file.".pi/agent/extensions".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/pi/extensions";
+  home.file.".pi/agent/keybindings.json".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/pi/keybindings.json";
+  home.file.".pi/agent/settings.json".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/pi/settings.json";
+  home.file.".pi/agent/skills".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/pi/skills";
+  home.file.".pi/agent/themes".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/dotfiles/pi/themes";
+
   # Yazi - terminal file manager with solarized dark theme
   programs.yazi = {
     enable = true;

@@ -5,7 +5,8 @@
 - [ ] Deduplicate packages between `modules/common/base.nix` (system-wide) and `home/base.nix` (home-manager)
 - [x] Migrate immich server from ubuntu machine
 - [ ] Setup sops
-- [ ] Evaluate adding a GitHub personal access token to the SOPS secrets file and generating a runtime Nix config section (`access-tokens = github.com=...`) to avoid unauthenticated API rate limits during flake updates; keep the decrypted token out of Git and the Nix store
+- [x] Evaluate adding a GitHub personal access token to the SOPS secrets file and generating a runtime Nix config section (`access-tokens = github.com=...`) to avoid unauthenticated API rate limits during flake updates; keep the decrypted token out of Git and the Nix store
+- [ ] Move `~/.config/nix/nix.conf` (Cachix substituters + trusted-public-keys) and `~/.config/nix/netrc` into declarative NixOS (`nix.settings`) + SOPS-rendered netrc config so `~/.config/nix/` is no longer unmanaged migration state
 - [ ] Test sway or hyprland
 - [ ] Switch fractal from blueman to overskride for bluetooth management
 - [ ] Test swaync as a replacement for mako (notification drawer + history)
